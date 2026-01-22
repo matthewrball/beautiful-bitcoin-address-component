@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bitcoin Address Component | Onramp Bitcoin</title>
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Bitcoin Address Component | Onramp Bitcoin">
+  <meta name="description" content="Secure Bitcoin address display component for Native SegWit (Bech32) P2WSH and Wrapped Segwit (P2SH-P2WSH) addresses. Designed by Matthew Ball for Onramp Bitcoin.">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://matthewball.me/bitcoin-address/">
+  <meta property="og:title" content="Bitcoin Address Component | Onramp Bitcoin">
+  <meta property="og:description" content="Secure Bitcoin address display component for Native SegWit (Bech32) P2WSH and Wrapped Segwit (P2SH-P2WSH) addresses.">
+  <meta property="og:image" content="https://matthewball.me/bitcoin-address/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://matthewball.me/bitcoin-address/">
+  <meta name="twitter:title" content="Bitcoin Address Component | Onramp Bitcoin">
+  <meta name="twitter:description" content="Secure Bitcoin address display component for Native SegWit (Bech32) P2WSH and Wrapped Segwit (P2SH-P2WSH) addresses.">
+  <meta name="twitter:image" content="https://matthewball.me/bitcoin-address/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="https://matthewball.me/wp-content/uploads/2025/01/cropped-matthew-ball-logo-1-32x32.png" sizes="32x32">
+  <link rel="icon" href="https://matthewball.me/wp-content/uploads/2025/01/cropped-matthew-ball-logo-1-192x192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="https://matthewball.me/wp-content/uploads/2025/01/cropped-matthew-ball-logo-1-180x180.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400&display=swap" rel="stylesheet">
+
+  <style>
+    /**
+     * Bitcoin Address Component
+     * =========================
+     * A responsive, themeable component for displaying Bitcoin addresses
+     * with copy functionality and expand/collapse animations.
+     *
+     * @author Matthew Ball
+     * @version 1.0.0
+     * @license MIT
+     *
+     * Architecture:
+     * - CSS Custom Properties for theming (light/dark mode)
+     * - BEM naming convention for maintainable CSS
+     * - IIFE-wrapped JavaScript for encapsulation
+     * - Data attributes for DOM binding
+     *
+     * Component Types:
+     * 1. Multiline (type: 'multiline') - Expands vertically to show full address
+     * 2. Crossfade (type: 'crossfade') - Fades between truncated/full views
+     */
+
+    /* ==========================================================================
+       Design Tokens
+       ========================================================================== */
+    :root {
+      /* Color Palette - Light Mode */
+      --color-text-primary: #181d27;
+      --color-text-secondary: #414651;
+      --color-text-tertiary: #535862;
+      --color-border: #d5d7da;
+      --color-bg-subtle: #fafafa;
+      --color-bg-primary: #f3f4f6;
+      --color-bg-secondary: #ffffff;
+      --color-bg-hover: #f9fafb;
+      --color-success: #079455;
+      --color-toast-bg: #1f2937;
+
+      /* Elevation */
+      --shadow-xs: 0 1px 2px rgba(10, 13, 18, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+      /* Motion */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --duration-fast: 150ms;
+      --duration-normal: 300ms;
+      --duration-slow: 400ms;
+
+      /* Spacing Scale */
+      --space-1: 4px;
+      --space-2: 6px;
+      --space-3: 8px;
+      --space-4: 12px;
+      --space-5: 16px;
+      --space-6: 24px;
+      --space-7: 32px;
+      --space-8: 48px;
+
+      /* Border Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+
+      /* Icon Colors */
+      --icon-default: #A4A7AE;
+      --icon-success: #079455;
+    }
+
+    /* Dark Mode Overrides */
+    .dark {
+      --color-text-primary: #f5f5f6;
+      --color-text-secondary: #cecfd2;
+      --color-text-tertiary: #94969c;
+      --color-border: #333741;
+      --color-bg-subtle: #1f242f;
+      --color-bg-primary: #0c111d;
+      --color-bg-secondary: #161b26;
+      --color-bg-hover: #1f242f;
+      --color-success: #47cd89;
+      --color-toast-bg: #374151;
+      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --icon-default: #85888e;
+      --icon-success: #47cd89;
+    }
+
+    /* ==========================================================================
+       Reset & Base
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--color-bg-primary);
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-7);
+      transition: background-color var(--duration-normal) ease;
+      /* Prevent pull-to-refresh and overscroll */
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ==========================================================================
+       Layout
+       ========================================================================== */
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+      max-width: 512px;
+      width: 100%;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .section__heading {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-tertiary);
+      line-height: 20px;
+      transition: color var(--duration-normal) ease;
+    }
+
+    .card {
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-8);
+      transition: background-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
+    }
+
+    /* ==========================================================================
+       Navigation
+       ========================================================================== */
+    .back-link {
+      position: fixed;
+      top: var(--space-5);
+      left: var(--space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-xs);
+      text-decoration: none;
+      transition: background-color var(--duration-fast) ease-out;
+    }
+
+    .back-link:hover { background-color: var(--color-bg-hover); }
+
+    .back-link__icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .back-link__text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      line-height: 20px;
+      transition: color var(--duration-normal) ease;
+    }
+
+    /* ==========================================================================
+       Theme Toggle
+       ========================================================================== */
+    .theme-toggle {
+      position: fixed;
+      top: var(--space-5);
+      right: var(--space-5);
+      padding: var(--space-4);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-xs);
+      cursor: pointer;
+      transition: background-color var(--duration-fast) ease-out;
+    }
+
+    .theme-toggle:hover { background-color: var(--color-bg-hover); }
+
+    .theme-toggle__icon {
+      width: 20px;
+      height: 20px;
+      color: var(--color-text-secondary);
+      display: block;
+    }
+
+    .theme-toggle__icon--sun { display: none; }
+    .dark .theme-toggle__icon--sun { display: block; }
+    .dark .theme-toggle__icon--moon { display: none; }
+
+    /* ==========================================================================
+       Bitcoin Address Component
+       ========================================================================== */
+    .btc-address {
+      display: flex;
+      flex-direction: column;
+      width: 366px;
+      height: 130px;
+    }
+
+    .btc-address__label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      line-height: 20px;
+      margin-bottom: var(--space-2);
+      transition: color var(--duration-normal) ease;
+    }
+
+    .btc-address__row {
+      display: flex;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-xs);
+      overflow: hidden;
+      background-color: var(--color-bg-subtle);
+      transition: border-color var(--duration-normal) ease;
+    }
+
+    .btc-address__display {
+      flex: 1;
+      background-color: var(--color-bg-subtle);
+      padding: 2px 14px 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: 44px;
+      overflow: hidden;
+      transition: height var(--duration-slow) var(--ease-spring), background-color var(--duration-normal) ease;
+    }
+
+    .btc-address__display--expanded { height: 62px; }
+
+    /* Address Text Styles */
+    .btc-address__text {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 16px;
+      line-height: 1;
+      background-color: transparent;
+      transition: opacity 250ms var(--ease-out-expo);
+    }
+
+    .btc-address__text--truncated {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btc-address__text--full {
+      white-space: normal;
+      word-break: break-all;
+    }
+
+    .btc-address__highlight {
+      color: var(--color-success);
+      line-height: 1;
+      transition: color var(--duration-normal) ease;
+    }
+
+    .btc-address__muted {
+      color: var(--color-text-tertiary);
+      line-height: 1;
+      transition: color var(--duration-normal) ease;
+    }
+
+    /* Crossfade Animation Container */
+    .btc-address__crossfade {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      background-color: transparent;
+    }
+
+    .btc-address__layer {
+      background-color: transparent;
+      transition: opacity var(--duration-normal) var(--ease-out-expo);
+    }
+
+    .btc-address__layer--hidden { opacity: 0; }
+
+    .btc-address__layer--absolute {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      opacity: 0;
+      background-color: transparent;
+    }
+
+    .btc-address__layer--visible { opacity: 1; }
+
+    /* ==========================================================================
+       Copy Button (Inline)
+       ========================================================================== */
+    .copy-btn-inline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 10px var(--space-5);
+      background-color: var(--color-bg-subtle);
+      border: none;
+      border-left: 1px solid var(--color-border);
+      cursor: pointer;
+      transition:
+        opacity var(--duration-normal) var(--ease-out-expo),
+        transform 450ms var(--ease-spring),
+        width 450ms var(--ease-out-expo),
+        padding 450ms var(--ease-out-expo),
+        background-color var(--duration-fast) ease-out;
+    }
+
+    .copy-btn-inline:hover { background-color: var(--color-bg-primary); }
+
+    .copy-btn-inline--hidden {
+      opacity: 0;
+      transform: translateX(12px);
+      pointer-events: none;
+      width: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .copy-btn-inline__text {
+      display: inline-block;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      line-height: 24px;
+      padding: 0 2px;
+      width: 38px;
+      text-align: center;
+      transition: color 250ms var(--ease-out-expo), width var(--duration-slow) var(--ease-spring);
+    }
+
+    .copy-btn-inline__text--success {
+      color: var(--color-success);
+      width: 52px;
+    }
+
+    /* ==========================================================================
+       Action Buttons
+       ========================================================================== */
+    .btn-container {
+      position: relative;
+      height: 36px;
+      margin-top: var(--space-2);
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-1);
+      padding: var(--space-3) var(--space-4);
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-xs);
+      cursor: pointer;
+      transition: background-color var(--duration-fast) ease-out;
+    }
+
+    .btn:hover { background-color: var(--color-bg-hover); }
+    .btn--full-width { width: 100%; }
+    .btn--flex { flex: 1; }
+
+    .btn__text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      line-height: 20px;
+      padding: 0 2px;
+      transition: color var(--duration-normal) ease;
+    }
+
+    .btn__text--copy { width: 34px; }
+    .btn__text--copy-success {
+      width: 48px;
+      color: var(--color-success);
+    }
+
+    .btn__icon { flex-shrink: 0; }
+    .btn__icon path { stroke: var(--icon-default); transition: stroke var(--duration-normal) ease; }
+
+    /* Button Row Animations */
+    .btn-row {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      gap: var(--space-2);
+      opacity: 0;
+      transform: translateY(6px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 350ms var(--ease-out-expo), transform 350ms var(--ease-spring);
+    }
+
+    .btn-row--visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .btn-view {
+      position: absolute;
+      inset: 0;
+      transition: opacity 350ms var(--ease-out-expo), transform 350ms var(--ease-spring);
+    }
+
+    .btn-view--hidden {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.97);
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       Copy Icon Animation
+       ========================================================================== */
+    .copy-icon {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .copy-icon__svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .copy-icon__svg--copy {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      transition: opacity 350ms var(--ease-out-expo) 50ms, transform 500ms var(--ease-spring) 50ms;
+    }
+
+    .copy-icon__svg--check {
+      opacity: 0;
+      transform: scale(0.3) rotate(-45deg);
+      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-slow) var(--ease-out-expo);
+    }
+
+    .copy-icon--success .copy-icon__svg--copy {
+      opacity: 0 !important;
+      transform: scale(0.3) rotate(45deg) !important;
+      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-slow) var(--ease-out-expo) !important;
+    }
+
+    .copy-icon--success .copy-icon__svg--check {
+      opacity: 1 !important;
+      transform: scale(1) rotate(0deg) !important;
+      transition: opacity var(--duration-normal) var(--ease-out-expo) 50ms, transform 500ms var(--ease-spring) 50ms !important;
+    }
+
+    .copy-icon__svg--copy path { stroke: var(--icon-default); }
+    .copy-icon__svg--check path { stroke: var(--icon-success); }
+
+    /* ==========================================================================
+       Toast Notification
+       ========================================================================== */
+    .toast {
+      position: fixed;
+      bottom: var(--space-7);
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--color-toast-bg);
+      color: white;
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--duration-normal) ease;
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
+    .footer {
+      position: fixed;
+      bottom: var(--space-6);
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 14px;
+      color: var(--color-text-tertiary);
+      line-height: 20px;
+      transition: color var(--duration-normal) ease;
+    }
+
+    .footer__link {
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color var(--duration-fast) ease;
+    }
+
+    .footer__link:hover {
+      color: var(--color-text-primary);
+      text-decoration: underline;
+    }
+
+    /* ==========================================================================
+       Responsive Design
+       ========================================================================== */
+    @media (max-width: 480px) {
+      body {
+        padding: var(--space-5);
+        padding-top: 72px;
+        padding-bottom: 72px;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .card {
+        padding: var(--space-6);
+        border-radius: var(--radius-md);
+        /* Fixed card height on mobile */
+        overflow: hidden;
+      }
+
+      .page-wrapper { gap: 20px; }
+      .section { gap: var(--space-3); }
+
+      .btc-address {
+        width: 100%;
+        height: 148px;
+        overflow: hidden;
+      }
+
+      .btc-address__text { font-size: 14px; line-height: 1; }
+
+      .btc-address__display {
+        padding: 2px var(--space-4) 0 var(--space-4);
+        height: 40px;
+      }
+
+      /* Keep original expansion animation */
+      .btc-address__display--expanded { height: 58px; }
+
+      .btc-address__crossfade,
+      .btc-address__layer,
+      .btc-address__text { background-color: transparent !important; }
+
+      .copy-btn-inline {
+        padding: 10px var(--space-4);
+        gap: var(--space-1);
+      }
+
+      .copy-btn-inline__text { font-size: 14px; width: 34px; }
+      .copy-btn-inline__text--success { width: 48px; }
+
+      .btn { padding: 10px var(--space-3); gap: var(--space-1); }
+      .btn__text { font-size: 14px; }
+      .btn__icon { width: 18px; height: 18px; }
+      .btn-container { height: 40px; }
+      .btn__text--copy { font-size: 14px; width: 34px; }
+      .btn__text--copy-success { width: 48px; }
+
+      .theme-toggle {
+        top: var(--space-4);
+        right: var(--space-4);
+        padding: 10px;
+      }
+
+      .theme-toggle__icon { width: 18px; height: 18px; }
+
+      .back-link {
+        top: var(--space-4);
+        left: var(--space-4);
+        padding: 10px;
+        gap: var(--space-1);
+      }
+
+      .back-link__icon { width: 14px; height: 14px; }
+      .back-link__text { font-size: 12px; }
+
+      .toast {
+        bottom: 70px;
+        font-size: 14px;
+        padding: var(--space-3) var(--space-4);
+        left: var(--space-5);
+        right: var(--space-5);
+        transform: none;
+        text-align: center;
+      }
+
+      .footer {
+        bottom: var(--space-5);
+        font-size: 12px;
+        padding: 0 var(--space-5);
+      }
+    }
+
+    /* Touch-friendly tap targets */
+    @media (pointer: coarse) {
+      .btn, .copy-btn-inline, .theme-toggle { min-height: 44px; }
+    }
+
+    /* Disable zoom on touch devices */
+    @media (hover: none) and (pointer: coarse) {
+      * {
+        touch-action: manipulation;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Back Navigation -->
+  <a href="https://matthewball.me" class="back-link">
+    <svg class="back-link__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    <span class="back-link__text">Back to matthewball.me</span>
+  </a>
+
+  <!-- Theme Toggle -->
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+    </svg>
+  </button>
+
+  <!-- Main Content -->
+  <main class="page-wrapper">
+    <!-- Section 1: Native SegWit -->
+    <section class="section">
+      <h2 class="section__heading">Native SegWit (Bech32) P2WSH</h2>
+      <div class="card">
+        <div class="btc-address" data-component="address" data-id="1" data-type="crossfade">
+          <label class="btc-address__label">Bitcoin address</label>
+          <div class="btc-address__row">
+            <div class="btc-address__display" data-display="1">
+              <div class="btc-address__crossfade">
+                <span class="btc-address__text btc-address__layer" data-truncated="1">
+                  <span class="btc-address__highlight">bc1qvh</span><span class="btc-address__muted">u35...mfs</span><span class="btc-address__highlight">nffz65</span>
+                </span>
+                <span class="btc-address__text btc-address__text--full btc-address__layer btc-address__layer--absolute" data-full="1">
+                  <span class="btc-address__highlight">bc1qvh</span><span class="btc-address__muted">u3557twysq2ldn6dut6rmaj3qk04p60h9l79wk4lzgy0ca8mfs</span><span class="btc-address__highlight">nffz65</span>
+                </span>
+              </div>
+            </div>
+            <button class="copy-btn-inline" data-copy-inline="1" aria-label="Copy address">
+              <span class="copy-icon" data-copy-icon="1">
+                <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="copy-btn-inline__text" data-copy-text="1">Copy</span>
+            </button>
+          </div>
+          <div class="btn-container">
+            <div class="btn-view" data-view-btn="1">
+              <button class="btn btn--full-width" data-toggle="1">
+                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M2.017 10.595c-.114-.18-.17-.27-.202-.409a.994.994 0 010-.372c.032-.139.088-.229.202-.409C2.954 7.921 5.746 4.167 10 4.167s7.046 3.754 7.984 5.238c.113.18.17.27.201.409a.994.994 0 010 .372c-.032.139-.088.229-.201.409C17.046 12.079 14.254 15.833 10 15.833S2.955 12.08 2.017 10.595z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="btn__text">View full address</span>
+              </button>
+            </div>
+            <div class="btn-row" data-btn-row="1">
+              <button class="btn btn--flex" data-toggle="1">
+                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M8.952 4.244A7.374 7.374 0 0110 4.167c4.254 0 7.046 3.754 7.983 5.238.114.18.17.27.202.409a.994.994 0 010 .372c-.032.139-.088.229-.202.409-.322.51-.814 1.21-1.47 1.905M5.633 5.633C3.762 6.956 2.504 8.813 2.016 9.586c-.113.18-.17.27-.201.408a.994.994 0 000 .373c.031.138.088.228.201.408C2.954 12.2 5.746 15.953 10 15.953c1.713 0 3.161-.64 4.366-1.587M2.5 2.5l15 15M8.232 8.232A2.5 2.5 0 0010 12.5c.69 0 1.318-.283 1.768-.732" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="btn__text">Hide full address</span>
+              </button>
+              <button class="btn btn--flex" data-copy-btn="1" aria-label="Copy address">
+                <span class="copy-icon" data-copy-icon-bottom="1">
+                  <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="btn__text btn__text--copy" data-copy-text-bottom="1">Copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Wrapped SegWit -->
+    <section class="section">
+      <h2 class="section__heading">Wrapped Segwit (P2SH-P2WSH)</h2>
+      <div class="card">
+        <div class="btc-address" data-component="address" data-id="2" data-type="crossfade">
+          <label class="btc-address__label">Bitcoin address</label>
+          <div class="btc-address__row">
+            <div class="btc-address__display" data-display="2">
+              <div class="btc-address__crossfade">
+                <span class="btc-address__text btc-address__layer" data-truncated="2">
+                  <span class="btc-address__highlight">3HU3JV</span><span class="btc-address__muted">MSG...QK5</span><span class="btc-address__highlight">dD1zob</span>
+                </span>
+                <span class="btc-address__text btc-address__layer btc-address__layer--absolute" data-full="2">
+                  <span class="btc-address__highlight">3HU3JV</span><span class="btc-address__muted">MSGushfkoWS9eyZjGzGQK5</span><span class="btc-address__highlight">dD1zob</span>
+                </span>
+              </div>
+            </div>
+            <button class="copy-btn-inline" data-copy-inline="2" aria-label="Copy address">
+              <span class="copy-icon" data-copy-icon="2">
+                <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="copy-btn-inline__text" data-copy-text="2">Copy</span>
+            </button>
+          </div>
+          <div class="btn-container">
+            <div class="btn-view" data-view-btn="2">
+              <button class="btn btn--full-width" data-toggle="2">
+                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M2.017 10.595c-.114-.18-.17-.27-.202-.409a.994.994 0 010-.372c.032-.139.088-.229.202-.409C2.954 7.921 5.746 4.167 10 4.167s7.046 3.754 7.984 5.238c.113.18.17.27.201.409a.994.994 0 010 .372c-.032.139-.088.229-.201.409C17.046 12.079 14.254 15.833 10 15.833S2.955 12.08 2.017 10.595z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="btn__text">View full address</span>
+              </button>
+            </div>
+            <div class="btn-row" data-btn-row="2">
+              <button class="btn btn--flex" data-toggle="2">
+                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M8.952 4.244A7.374 7.374 0 0110 4.167c4.254 0 7.046 3.754 7.983 5.238.114.18.17.27.202.409a.994.994 0 010 .372c-.032.139-.088.229-.202.409-.322.51-.814 1.21-1.47 1.905M5.633 5.633C3.762 6.956 2.504 8.813 2.016 9.586c-.113.18-.17.27-.201.408a.994.994 0 000 .373c.031.138.088.228.201.408C2.954 12.2 5.746 15.953 10 15.953c1.713 0 3.161-.64 4.366-1.587M2.5 2.5l15 15M8.232 8.232A2.5 2.5 0 0010 12.5c.69 0 1.318-.283 1.768-.732" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="btn__text">Hide full address</span>
+              </button>
+              <button class="btn btn--flex" data-copy-btn="2" aria-label="Copy address">
+                <span class="copy-icon" data-copy-icon-bottom="2">
+                  <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="btn__text btn__text--copy" data-copy-text-bottom="2">Copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite">Address copied to clipboard!</div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Designed by Matthew Ball for <a href="https://www.onrampbitcoin.com/" class="footer__link" target="_blank" rel="noopener noreferrer">Onramp Bitcoin</a> on <a href="https://mempool.space/block/0000000000000000000032bcfdb9b513ff18a9458de954e692bfb639047d51b2" class="footer__link" target="_blank" rel="noopener noreferrer">933412</a>
+  </footer>
+
+  <script>
+    /**
+     * Bitcoin Address Component Controller
+     * =====================================
+     * Manages theme toggling, address expansion animations, and clipboard operations.
+     *
+     * @version 1.0.0
+     *
+     * Usage:
+     * - Components auto-initialize on DOM ready
+     * - Add data-component="address" with data-id and data-type attributes
+     * - Supported types: 'multiline' (vertical expand), 'crossfade' (opacity transition)
+     */
+    (function BitcoinAddressComponent() {
+      'use strict';
+
+      // =========================================================================
+      // Configuration
+      // =========================================================================
+      const CONFIG = {
+        addresses: {
+          1: {
+            full: 'bc1qvhu3557twysq2ldn6dut6rmaj3qk04p60h9l79wk4lzgy0ca8mfsnffz65',
+            type: 'crossfade'
+          },
+          2: {
+            full: '3HU3JVMSGushfkoWS9eyZjGzGQK5dD1zob',
+            type: 'crossfade'
+          }
+        },
+        timing: {
+          animationLock: 400,
+          crossfadeLock: 350,
+          copyFeedback: 2000,
+          textSwapDelay: 80
+        },
+        selectors: {
+          display: '[data-display]',
+          text: '[data-text]',
+          middle: '[data-middle]',
+          copyInline: '[data-copy-inline]',
+          viewBtn: '[data-view-btn]',
+          btnRow: '[data-btn-row]',
+          toggle: '[data-toggle]',
+          copyBtn: '[data-copy-btn]',
+          truncated: '[data-truncated]',
+          full: '[data-full]',
+          copyIcon: '[data-copy-icon]',
+          copyIconBottom: '[data-copy-icon-bottom]',
+          copyText: '[data-copy-text]',
+          copyTextBottom: '[data-copy-text-bottom]'
+        },
+        classes: {
+          expanded: 'btc-address__display--expanded',
+          truncated: 'btc-address__text--truncated',
+          full: 'btc-address__text--full',
+          copyHidden: 'copy-btn-inline--hidden',
+          viewHidden: 'btn-view--hidden',
+          rowVisible: 'btn-row--visible',
+          layerHidden: 'btc-address__layer--hidden',
+          layerVisible: 'btc-address__layer--visible',
+          copySuccess: 'copy-icon--success',
+          textSuccess: 'copy-btn-inline__text--success',
+          btnCopySuccess: 'btn__text--copy-success'
+        }
+      };
+
+      // =========================================================================
+      // State Management
+      // =========================================================================
+      const state = {
+        expanded: {},
+        animating: {}
+      };
+
+      // Initialize state for each address
+      Object.keys(CONFIG.addresses).forEach(id => {
+        state.expanded[id] = false;
+        state.animating[id] = false;
+      });
+
+      // =========================================================================
+      // DOM Utilities
+      // =========================================================================
+      const $ = selector => document.querySelector(selector);
+      const $$ = selector => document.querySelectorAll(selector);
+      const $id = (selector, id) => document.querySelector(`${selector}="${id}"]`);
+
+      // =========================================================================
+      // Theme Management
+      // =========================================================================
+      const Theme = {
+        init() {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        },
+
+        toggle() {
+          const isDark = document.documentElement.classList.toggle('dark');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+      };
+
+      // =========================================================================
+      // Address Toggle Handlers
+      // =========================================================================
+      const AddressToggle = {
+        multiline(id) {
+          if (state.animating[id]) return;
+          state.animating[id] = true;
+          state.expanded[id] = !state.expanded[id];
+
+          const config = CONFIG.addresses[id];
+          const elements = {
+            display: $id('[data-display', id),
+            text: $id('[data-text', id),
+            middle: $id('[data-middle', id),
+            copyInline: $id('[data-copy-inline', id),
+            viewBtn: $id('[data-view-btn', id),
+            btnRow: $id('[data-btn-row', id)
+          };
+
+          const { classes } = CONFIG;
+
+          if (state.expanded[id]) {
+            elements.display.classList.add(classes.expanded);
+            elements.copyInline.classList.add(classes.copyHidden);
+            elements.viewBtn.classList.add(classes.viewHidden);
+            elements.btnRow.classList.add(classes.rowVisible);
+
+            setTimeout(() => {
+              elements.middle.textContent = config.middleFull;
+              elements.text.classList.remove(classes.truncated);
+              elements.text.classList.add(classes.full);
+            }, CONFIG.timing.textSwapDelay);
+          } else {
+            elements.display.classList.remove(classes.expanded);
+            elements.copyInline.classList.remove(classes.copyHidden);
+            elements.viewBtn.classList.remove(classes.viewHidden);
+            elements.btnRow.classList.remove(classes.rowVisible);
+
+            setTimeout(() => {
+              elements.text.classList.add(classes.truncated);
+              elements.text.classList.remove(classes.full);
+              elements.middle.textContent = config.middleTruncated;
+            }, CONFIG.timing.textSwapDelay);
+          }
+
+          setTimeout(() => { state.animating[id] = false; }, CONFIG.timing.animationLock);
+        },
+
+        crossfade(id) {
+          if (state.animating[id]) return;
+          state.animating[id] = true;
+          state.expanded[id] = !state.expanded[id];
+
+          const elements = {
+            display: $id('[data-display', id),
+            truncated: $id('[data-truncated', id),
+            full: $id('[data-full', id),
+            copyInline: $id('[data-copy-inline', id),
+            viewBtn: $id('[data-view-btn', id),
+            btnRow: $id('[data-btn-row', id)
+          };
+
+          const { classes } = CONFIG;
+
+          if (state.expanded[id]) {
+            // Component 1 needs height expansion for multiline
+            if (id === 1) elements.display.classList.add(classes.expanded);
+            elements.copyInline.classList.add(classes.copyHidden);
+            elements.viewBtn.classList.add(classes.viewHidden);
+            elements.btnRow.classList.add(classes.rowVisible);
+            elements.truncated.classList.add(classes.layerHidden);
+            elements.full.classList.add(classes.layerVisible);
+          } else {
+            if (id === 1) elements.display.classList.remove(classes.expanded);
+            elements.copyInline.classList.remove(classes.copyHidden);
+            elements.viewBtn.classList.remove(classes.viewHidden);
+            elements.btnRow.classList.remove(classes.rowVisible);
+            elements.truncated.classList.remove(classes.layerHidden);
+            elements.full.classList.remove(classes.layerVisible);
+          }
+
+          setTimeout(() => { state.animating[id] = false; }, CONFIG.timing.crossfadeLock);
+        }
+      };
+
+      // =========================================================================
+      // Clipboard Operations
+      // =========================================================================
+      const Clipboard = {
+        async copy(text) {
+          if (navigator.clipboard && window.isSecureContext) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch {
+              return this.fallback(text);
+            }
+          }
+          return this.fallback(text);
+        },
+
+        fallback(text) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+          document.body.appendChild(textarea);
+          textarea.focus();
+          textarea.select();
+
+          try {
+            document.execCommand('copy');
+            return true;
+          } catch {
+            return false;
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        },
+
+        showSuccess(iconEl, textEl) {
+          const { classes } = CONFIG;
+          iconEl.classList.add(classes.copySuccess);
+          textEl.classList.add(classes.textSuccess, classes.btnCopySuccess);
+          textEl.textContent = 'Copied';
+
+          setTimeout(() => {
+            iconEl.classList.remove(classes.copySuccess);
+            textEl.classList.remove(classes.textSuccess, classes.btnCopySuccess);
+            textEl.textContent = 'Copy';
+          }, CONFIG.timing.copyFeedback);
+        },
+
+        async handle(addressId, location) {
+          const address = CONFIG.addresses[addressId].full;
+          const success = await this.copy(address);
+
+          if (success) {
+            const iconEl = location === 'inline'
+              ? $id('[data-copy-icon', addressId)
+              : $id('[data-copy-icon-bottom', addressId);
+            const textEl = location === 'inline'
+              ? $id('[data-copy-text', addressId)
+              : $id('[data-copy-text-bottom', addressId);
+
+            this.showSuccess(iconEl, textEl);
+          }
+        }
+      };
+
+      // =========================================================================
+      // Event Binding
+      // =========================================================================
+      function bindEvents() {
+        // Theme toggle
+        $('#themeToggle')?.addEventListener('click', Theme.toggle);
+
+        // Toggle buttons
+        $$(CONFIG.selectors.toggle).forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.dataset.toggle, 10);
+            const { type } = CONFIG.addresses[id];
+            type === 'multiline' ? AddressToggle.multiline(id) : AddressToggle.crossfade(id);
+          });
+        });
+
+        // Inline copy buttons
+        $$(CONFIG.selectors.copyInline).forEach(btn => {
+          btn.addEventListener('click', () => {
+            Clipboard.handle(parseInt(btn.dataset.copyInline, 10), 'inline');
+          });
+        });
+
+        // Bottom copy buttons
+        $$(CONFIG.selectors.copyBtn).forEach(btn => {
+          btn.addEventListener('click', () => {
+            Clipboard.handle(parseInt(btn.dataset.copyBtn, 10), 'bottom');
+          });
+        });
+      }
+
+      // =========================================================================
+      // Initialization
+      // =========================================================================
+      function init() {
+        Theme.init();
+        bindEvents();
+      }
+
+      // Start when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
