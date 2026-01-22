@@ -950,9 +950,8 @@
         STORAGE_KEY: 'btc-address-theme',
 
         init() {
-          // Check localStorage first, then system preference
-          const stored = localStorage.getItem(this.STORAGE_KEY);
-          if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          // Only apply dark mode if explicitly saved in localStorage
+          if (localStorage.getItem(this.STORAGE_KEY) === 'dark') {
             document.documentElement.classList.add('dark');
           }
         },
