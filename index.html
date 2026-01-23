@@ -295,6 +295,12 @@
       transition: height var(--duration-slow) var(--ease-spring), background-color var(--duration-normal) ease;
     }
 
+    /* First component has fixed height to prevent card resize on expand */
+    [data-id="1"] .btc-address__display {
+      height: 62px;
+    }
+
+    /* Second component expands on toggle */
     .btc-address__display--expanded { height: 62px; }
 
     /* Address Text */
@@ -629,6 +635,11 @@
         height: 40px;
       }
 
+      /* First component has fixed height on mobile too */
+      [data-id="1"] .btc-address__display {
+        height: 58px;
+      }
+
       .btc-address__display--expanded { height: 58px; }
 
       .btc-address__crossfade,
@@ -898,7 +909,7 @@
         addresses: {
           1: {
             full: 'bc1qvhu3557twysq2ldn6dut6rmaj3qk04p60h9l79wk4lzgy0ca8mfsnffz65',
-            expandsVertically: true  // Multiline expansion for long addresses
+            expandsVertically: false  // Fixed height - no expansion needed
           },
           2: {
             full: '3HU3JVMSGushfkoWS9eyZjGzGQK5dD1zob',
