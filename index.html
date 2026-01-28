@@ -37,31 +37,51 @@
 
   <style>
     /**
-     * Bitcoin Address Component
-     * =========================
-     * A production-ready, responsive component for displaying Bitcoin addresses
-     * with copy functionality and smooth expand/collapse animations.
+     * Bitcoin Address Component - Motion Optimized
+     * =============================================
+     * Professional High-Net-Worth Bitcoin Application
      *
      * @author Matthew Ball
-     * @version 2.0.0
+     * @version 3.0.0
      * @license MIT
      *
-     * Architecture:
-     * - CSS Custom Properties (Design Tokens) for consistent theming
-     * - BEM naming convention for scalable, maintainable CSS
-     * - IIFE-wrapped JavaScript with modular pattern
-     * - Data attributes for clean DOM binding
-     * - Crossfade animation for smooth state transitions
+     * MOTION DESIGN CONTEXT
+     * =====================
+     * Application Type: Professional financial application (high-net-worth Bitcoin)
+     * Interaction Frequency: High (users interact 100+ times daily)
+     * User Expectation: Speed, precision, trust
      *
-     * Browser Support:
-     * - Modern browsers (Chrome 80+, Firefox 75+, Safari 13+, Edge 80+)
-     * - Clipboard API with execCommand fallback
-     * - CSS custom properties with no fallback (modern browsers only)
+     * PERSPECTIVE WEIGHTING (per Design Motion Principles)
+     * ====================================================
+     * PRIMARY: Emil Kowalski (restraint, speed, purposeful motion)
+     *   - Durations under 300ms, ideally 180ms
+     *   - No animation on keyboard actions
+     *   - CSS transitions for interruptibility
+     *   - scale() from 0.9+, never from 0
+     *
+     * SECONDARY: Jakub Krehel (production polish)
+     *   - Enter animations: opacity + translateY (blur optional)
+     *   - Exit animations subtler than enters
+     *   - Hover transitions 150-200ms minimum
+     *   - Multi-layer shadows over borders
+     *
+     * SELECTIVE: Jhey Tompkins (avoided)
+     *   - No playful/experimental motion in financial context
+     *   - No elastic/bounce easing
+     *
+     * KEY DECISIONS
+     * =============
+     * 1. Blur on crossfade: YES (Jakub's "materializing" effect aids readability
+     *    when revealing sensitive address data - functional, not decorative)
+     * 2. Spring easing: NO (Emil: "professional brand should use subtle springs
+     *    or ease-out" - we choose ease-out for financial gravity)
+     * 3. Duration ceiling: 250ms (Emil says under 300ms; we add 70ms buffer
+     *    for the crossfade which needs slightly longer for text readability)
+     * 4. Button :active scale: YES (Emil: "immediate tactile feedback")
      */
 
     /* ==========================================================================
        DESIGN TOKENS
-       Centralized design values for consistent theming and easy customization.
        ========================================================================== */
     :root {
       /* Typography */
@@ -82,18 +102,56 @@
       --color-icon: #a4a7ae;
       --color-icon-success: #079455;
 
-      /* Elevation */
-      --shadow-xs: 0 1px 2px rgba(10, 13, 18, 0.05);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      /* Elevation - Multi-layer shadows (Jakub: shadows over borders) */
+      --shadow-xs:
+        0px 0px 0px 1px rgba(10, 13, 18, 0.04),
+        0px 1px 2px rgba(10, 13, 18, 0.05);
+      --shadow-lg:
+        0px 0px 0px 1px rgba(0, 0, 0, 0.03),
+        0px 4px 6px -2px rgba(0, 0, 0, 0.05),
+        0px 10px 15px -3px rgba(0, 0, 0, 0.08);
 
-      /* Motion - Optimized easing curves */
-      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-      --duration-fast: 150ms;
-      --duration-normal: 300ms;
-      --duration-slow: 400ms;
+      /* =======================================================================
+         MOTION TOKENS
+         Design Motion Principles: Emil (primary) + Jakub (secondary)
+         ======================================================================= */
 
-      /* Spacing Scale (4px base) */
+      /**
+       * EASING CURVES
+       * Emil: "Built-in CSS easing lacks strength. Always use custom curves."
+       * Emil: "Professional brand should use subtle springs or ease-out."
+       *
+       * We use ease-out for financial gravity - no spring/bounce.
+       */
+      --ease-out: cubic-bezier(0.33, 1, 0.68, 1);       /* Standard deceleration */
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);   /* Stronger deceleration for enters */
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* Symmetric for state changes */
+
+      /**
+       * DURATION SCALE
+       * Emil: "UI animations should be under 300ms; 180ms feels more responsive"
+       * Emil: "If users trigger this 100s of times daily, remove the animation"
+       *
+       * Financial app users are high-frequency - every ms matters.
+       */
+      --duration-instant: 0ms;      /* Keyboard actions - NEVER animate (Emil) */
+      --duration-fast: 100ms;       /* Micro-interactions, hovers */
+      --duration-normal: 150ms;     /* Standard UI feedback */
+      --duration-smooth: 200ms;     /* Polished transitions */
+      --duration-reveal: 250ms;     /* Address reveal (needs readability time) */
+
+      /**
+       * TRANSFORM VALUES
+       * Emil: "Don't animate from scale(0)" - start from 0.9+
+       * Jakub: "Exit animations should be subtler than enters"
+       */
+      --enter-y: 6px;               /* Moderate - not too dramatic */
+      --exit-y: -3px;               /* Half of enter (Jakub's exit rule) */
+      --enter-scale: 0.96;          /* Emil: start from 0.9+ */
+      --exit-scale: 0.98;           /* Subtler than enter */
+      --blur-amount: 3px;           /* Jakub: blur for "materializing" effect */
+
+      /* Spacing Scale */
       --space-1: 4px;
       --space-2: 6px;
       --space-3: 8px;
@@ -109,7 +167,7 @@
       --radius-lg: 16px;
     }
 
-    /* Dark Mode - Automatic theme switching via class toggle */
+    /* Dark Mode */
     .dark {
       --color-text-primary: #f5f5f6;
       --color-text-secondary: #cecfd2;
@@ -124,12 +182,26 @@
       --color-icon: #85888e;
       --color-icon-success: #47cd89;
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-      --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ==========================================================================
+       ACCESSIBILITY - Reduced Motion (MANDATORY - NOT OPTIONAL)
+       "Always check for prefers-reduced-motion. No exceptions." - Design Motion Principles
+       ========================================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
 
     /* ==========================================================================
        RESET & BASE
-       Minimal reset for consistent cross-browser rendering.
        ========================================================================== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -146,13 +218,13 @@
       align-items: center;
       justify-content: center;
       padding: var(--space-7);
-      transition: background-color var(--duration-normal) ease;
+      /* State-driven transition (Emil: transitions over keyframes) */
+      transition: background-color var(--duration-smooth) var(--ease-in-out);
       -webkit-overflow-scrolling: touch;
     }
 
     /* ==========================================================================
        LAYOUT
-       Page structure and content containers.
        ========================================================================== */
     .page-wrapper {
       display: flex;
@@ -175,7 +247,7 @@
       font-weight: 600;
       color: var(--color-text-tertiary);
       line-height: 20px;
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
     .card {
@@ -183,12 +255,13 @@
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
       padding: var(--space-8);
-      transition: background-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
+      transition:
+        background-color var(--duration-smooth) var(--ease-in-out),
+        box-shadow var(--duration-smooth) var(--ease-in-out);
     }
 
     /* ==========================================================================
-       NAVIGATION
-       Back link and fixed navigation elements.
+       NAVIGATION - Back Link
        ========================================================================== */
     .back-link {
       position: fixed;
@@ -203,10 +276,14 @@
       border: 1px solid var(--color-border);
       box-shadow: var(--shadow-xs);
       text-decoration: none;
-      transition: background-color var(--duration-fast) ease-out;
+      /* Jakub: hover transitions 150-200ms minimum */
+      transition: background-color var(--duration-normal) var(--ease-out);
     }
 
     .back-link:hover { background-color: var(--color-bg-hover); }
+
+    /* Emil: "Add immediate tactile feedback" */
+    .back-link:active { transform: scale(0.98); }
 
     .back-link__icon {
       width: 16px;
@@ -220,12 +297,11 @@
       font-weight: 500;
       color: var(--color-text-secondary);
       line-height: 20px;
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
     /* ==========================================================================
        THEME TOGGLE
-       Dark/light mode switch button.
        ========================================================================== */
     .theme-toggle {
       position: fixed;
@@ -237,10 +313,11 @@
       border: 1px solid var(--color-border);
       box-shadow: var(--shadow-xs);
       cursor: pointer;
-      transition: background-color var(--duration-fast) ease-out;
+      transition: background-color var(--duration-normal) var(--ease-out);
     }
 
     .theme-toggle:hover { background-color: var(--color-bg-hover); }
+    .theme-toggle:active { transform: scale(0.95); }
 
     .theme-toggle__icon {
       width: 20px;
@@ -249,14 +326,12 @@
       display: block;
     }
 
-    /* Icon visibility toggle */
     .theme-toggle__icon--sun { display: none; }
     .dark .theme-toggle__icon--sun { display: block; }
     .dark .theme-toggle__icon--moon { display: none; }
 
     /* ==========================================================================
        BITCOIN ADDRESS COMPONENT
-       Main address display with expand/collapse functionality.
        ========================================================================== */
     .btc-address {
       display: flex;
@@ -271,7 +346,7 @@
       color: var(--color-text-primary);
       line-height: 20px;
       margin-bottom: var(--space-2);
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
     .btc-address__row {
@@ -281,7 +356,7 @@
       box-shadow: var(--shadow-xs);
       overflow: hidden;
       background-color: var(--color-bg-subtle);
-      transition: border-color var(--duration-normal) ease;
+      transition: border-color var(--duration-smooth) var(--ease-in-out);
     }
 
     .btc-address__display {
@@ -292,15 +367,21 @@
       align-items: center;
       height: 44px;
       overflow: hidden;
-      transition: height var(--duration-slow) var(--ease-spring), background-color var(--duration-normal) ease;
+      /**
+       * Height transition for expand/collapse
+       * Using --duration-reveal (250ms) because address text readability
+       * benefits from slightly longer transition than typical UI feedback
+       */
+      transition:
+        height var(--duration-reveal) var(--ease-out-expo),
+        background-color var(--duration-smooth) var(--ease-in-out);
     }
 
-    /* First component has fixed height to prevent card resize on expand */
+    /* First component has fixed height (per developer feedback) */
     [data-id="1"] .btc-address__display {
       height: 62px;
     }
 
-    /* Second component expands on toggle */
     .btc-address__display--expanded { height: 62px; }
 
     /* Address Text */
@@ -309,7 +390,6 @@
       font-size: 16px;
       line-height: 1;
       background-color: transparent;
-      transition: opacity 250ms var(--ease-out-expo);
     }
 
     .btc-address__text--full {
@@ -320,16 +400,23 @@
     .btc-address__highlight {
       color: var(--color-success);
       line-height: 1;
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
     .btc-address__muted {
       color: var(--color-text-tertiary);
       line-height: 1;
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
-    /* Crossfade Animation System */
+    /* ==========================================================================
+       CROSSFADE ANIMATION SYSTEM
+       Jakub: "Blur creates a 'materializing' effect that feels more physical"
+
+       For financial apps showing sensitive data (Bitcoin addresses), the blur
+       serves a functional purpose: it signals the transition between hidden
+       and revealed states, aiding comprehension of what changed.
+       ========================================================================== */
     .btc-address__crossfade {
       position: relative;
       width: 100%;
@@ -340,10 +427,20 @@
 
     .btc-address__layer {
       background-color: transparent;
-      transition: opacity var(--duration-normal) var(--ease-out-expo);
+      /**
+       * Crossfade: opacity + blur
+       * Jakub's enter recipe adapted for crossfade (no translateY needed here)
+       * Duration: --duration-reveal for text readability
+       */
+      transition:
+        opacity var(--duration-reveal) var(--ease-out-expo),
+        filter var(--duration-reveal) var(--ease-out-expo);
     }
 
-    .btc-address__layer--hidden { opacity: 0; }
+    .btc-address__layer--hidden {
+      opacity: 0;
+      filter: blur(var(--blur-amount));
+    }
 
     .btc-address__layer--absolute {
       position: absolute;
@@ -351,14 +448,17 @@
       left: 0;
       transform: translateY(-50%);
       opacity: 0;
+      filter: blur(var(--blur-amount));
       background-color: transparent;
     }
 
-    .btc-address__layer--visible { opacity: 1; }
+    .btc-address__layer--visible {
+      opacity: 1;
+      filter: blur(0px);
+    }
 
     /* ==========================================================================
        COPY BUTTON (INLINE)
-       Copy button integrated into address row.
        ========================================================================== */
     .copy-btn-inline {
       display: flex;
@@ -370,19 +470,25 @@
       border: none;
       border-left: 1px solid var(--color-border);
       cursor: pointer;
+      /**
+       * will-change: targeted to specific properties (Jakub)
+       * Only apply to elements that actually animate these properties
+       */
+      will-change: transform, opacity;
       transition:
-        opacity var(--duration-normal) var(--ease-out-expo),
-        transform 450ms var(--ease-spring),
-        width 450ms var(--ease-out-expo),
-        padding 450ms var(--ease-out-expo),
-        background-color var(--duration-fast) ease-out;
+        opacity var(--duration-smooth) var(--ease-out),
+        transform var(--duration-reveal) var(--ease-out-expo),
+        width var(--duration-reveal) var(--ease-out-expo),
+        padding var(--duration-reveal) var(--ease-out-expo),
+        background-color var(--duration-fast) var(--ease-out);
     }
 
     .copy-btn-inline:hover { background-color: var(--color-bg-primary); }
+    .copy-btn-inline:active { transform: scale(0.97); }
 
     .copy-btn-inline--hidden {
       opacity: 0;
-      transform: translateX(12px);
+      transform: translateX(8px);
       pointer-events: none;
       width: 0;
       padding: 0;
@@ -398,7 +504,9 @@
       padding: 0 2px;
       width: 38px;
       text-align: center;
-      transition: color 250ms var(--ease-out-expo), width var(--duration-slow) var(--ease-spring);
+      transition:
+        color var(--duration-normal) var(--ease-out),
+        width var(--duration-smooth) var(--ease-out);
     }
 
     .copy-btn-inline__text--success {
@@ -408,7 +516,6 @@
 
     /* ==========================================================================
        ACTION BUTTONS
-       View/hide and copy buttons below address.
        ========================================================================== */
     .btn-container {
       position: relative;
@@ -427,10 +534,15 @@
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-xs);
       cursor: pointer;
-      transition: background-color var(--duration-fast) ease-out;
+      /* Jakub: hover transitions 150-200ms minimum */
+      transition: background-color var(--duration-normal) var(--ease-out);
     }
 
     .btn:hover { background-color: var(--color-bg-hover); }
+
+    /* Emil: "Add immediate tactile feedback" */
+    .btn:active { transform: scale(0.97); }
+
     .btn--full-width { width: 100%; }
     .btn--flex { flex: 1; }
 
@@ -440,48 +552,75 @@
       color: var(--color-text-secondary);
       line-height: 20px;
       padding: 0 2px;
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
     .btn__text--copy { width: 34px; }
     .btn__text--copy-success { width: 48px; color: var(--color-success); }
 
     .btn__icon { flex-shrink: 0; }
-    .btn__icon path { stroke: var(--color-icon); transition: stroke var(--duration-normal) ease; }
+    .btn__icon path {
+      stroke: var(--color-icon);
+      transition: stroke var(--duration-smooth) var(--ease-in-out);
+    }
 
-    /* Button Row Animation */
+    /* ==========================================================================
+       BUTTON ROW ANIMATION
+       Jakub: Enter = opacity + translateY + blur
+       Jakub: Exit = subtler than enter (smaller values)
+
+       Using CSS transitions (not keyframes) for interruptibility (Emil)
+       ========================================================================== */
     .btn-row {
       position: absolute;
       inset: 0;
       display: flex;
       gap: var(--space-2);
+      /* Initial hidden state - ready to enter */
       opacity: 0;
-      transform: translateY(6px) scale(0.97);
+      transform: translateY(var(--enter-y)) scale(var(--enter-scale));
+      filter: blur(var(--blur-amount));
       pointer-events: none;
-      transition: opacity 350ms var(--ease-out-expo), transform 350ms var(--ease-spring);
+      will-change: transform, opacity, filter;
+      /* Enter animation timing */
+      transition:
+        opacity var(--duration-reveal) var(--ease-out-expo),
+        transform var(--duration-reveal) var(--ease-out-expo),
+        filter var(--duration-reveal) var(--ease-out-expo);
     }
 
     .btn-row--visible {
       opacity: 1;
       transform: translateY(0) scale(1);
+      filter: blur(0px);
       pointer-events: auto;
     }
 
     .btn-view {
       position: absolute;
       inset: 0;
-      transition: opacity 350ms var(--ease-out-expo), transform 350ms var(--ease-spring);
+      will-change: transform, opacity, filter;
+      /**
+       * Exit animation: subtler and faster than enter (Jakub)
+       * Using --duration-smooth (200ms) vs enter's --duration-reveal (250ms)
+       */
+      transition:
+        opacity var(--duration-smooth) var(--ease-out),
+        transform var(--duration-smooth) var(--ease-out),
+        filter var(--duration-smooth) var(--ease-out);
     }
 
     .btn-view--hidden {
       opacity: 0;
-      transform: translateY(-6px) scale(0.97);
+      transform: translateY(var(--exit-y)) scale(var(--exit-scale));
+      filter: blur(var(--blur-amount));
       pointer-events: none;
     }
 
     /* ==========================================================================
        COPY ICON ANIMATION
-       Animated icon transition for copy feedback.
+       Jakub: Icon swaps should animate opacity + scale + blur
+       Emil: Don't animate from scale(0) - start from 0.9+
        ========================================================================== */
     .copy-icon {
       position: relative;
@@ -493,30 +632,44 @@
     .copy-icon__svg {
       position: absolute;
       inset: 0;
+      will-change: transform, opacity, filter;
     }
 
+    /* Copy icon - visible state */
     .copy-icon__svg--copy {
       opacity: 1;
-      transform: scale(1) rotate(0deg);
-      transition: opacity 350ms var(--ease-out-expo) 50ms, transform 500ms var(--ease-spring) 50ms;
+      transform: scale(1);
+      filter: blur(0px);
+      transition:
+        opacity var(--duration-normal) var(--ease-out),
+        transform var(--duration-smooth) var(--ease-out),
+        filter var(--duration-normal) var(--ease-out);
     }
 
+    /* Check icon - hidden state (ready to enter) */
     .copy-icon__svg--check {
       opacity: 0;
-      transform: scale(0.3) rotate(-45deg);
-      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-slow) var(--ease-out-expo);
+      /* Emil: scale from 0.9+, never 0 */
+      transform: scale(var(--enter-scale));
+      filter: blur(var(--blur-amount));
+      transition:
+        opacity var(--duration-normal) var(--ease-out),
+        transform var(--duration-smooth) var(--ease-out),
+        filter var(--duration-normal) var(--ease-out);
     }
 
+    /* Success state - Copy icon exits (subtler) */
     .copy-icon--success .copy-icon__svg--copy {
       opacity: 0 !important;
-      transform: scale(0.3) rotate(45deg) !important;
-      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-slow) var(--ease-out-expo) !important;
+      transform: scale(var(--exit-scale)) !important;
+      filter: blur(var(--blur-amount)) !important;
     }
 
+    /* Success state - Check icon enters */
     .copy-icon--success .copy-icon__svg--check {
       opacity: 1 !important;
-      transform: scale(1) rotate(0deg) !important;
-      transition: opacity var(--duration-normal) var(--ease-out-expo) 50ms, transform 500ms var(--ease-spring) 50ms !important;
+      transform: scale(1) !important;
+      filter: blur(0px) !important;
     }
 
     .copy-icon__svg--copy path { stroke: var(--color-icon); }
@@ -524,7 +677,6 @@
 
     /* ==========================================================================
        TOAST NOTIFICATION
-       Accessible notification for copy confirmation.
        ========================================================================== */
     .toast {
       position: fixed;
@@ -538,12 +690,11 @@
       box-shadow: var(--shadow-lg);
       opacity: 0;
       pointer-events: none;
-      transition: opacity var(--duration-normal) ease;
+      transition: opacity var(--duration-smooth) var(--ease-out);
     }
 
     /* ==========================================================================
        GITHUB LINK
-       Repository link styled as button.
        ========================================================================== */
     .github-link {
       display: inline-flex;
@@ -556,10 +707,11 @@
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-xs);
       text-decoration: none;
-      transition: background-color var(--duration-fast) ease-out;
+      transition: background-color var(--duration-normal) var(--ease-out);
     }
 
     .github-link:hover { background-color: var(--color-bg-hover); }
+    .github-link:active { transform: scale(0.98); }
 
     .github-link__icon {
       width: 18px;
@@ -577,7 +729,6 @@
 
     /* ==========================================================================
        FOOTER
-       Fixed attribution footer.
        ========================================================================== */
     .footer {
       position: fixed;
@@ -588,13 +739,13 @@
       font-size: 14px;
       color: var(--color-text-tertiary);
       line-height: 20px;
-      transition: color var(--duration-normal) ease;
+      transition: color var(--duration-smooth) var(--ease-in-out);
     }
 
     .footer__link {
       color: var(--color-text-secondary);
       text-decoration: none;
-      transition: color var(--duration-fast) ease;
+      transition: color var(--duration-fast) var(--ease-out);
     }
 
     .footer__link:hover {
@@ -604,7 +755,6 @@
 
     /* ==========================================================================
        RESPONSIVE DESIGN
-       Mobile-first breakpoints and touch optimizations.
        ========================================================================== */
     @media (max-width: 480px) {
       body {
@@ -635,7 +785,6 @@
         height: 40px;
       }
 
-      /* First component has fixed height on mobile too */
       [data-id="1"] .btc-address__display {
         height: 58px;
       }
@@ -867,7 +1016,7 @@
     </a>
   </main>
 
-  <!-- Toast Notification (ARIA live region for accessibility) -->
+  <!-- Toast Notification -->
   <div class="toast" id="toast" role="status" aria-live="polite">Address copied to clipboard!</div>
 
   <!-- Footer -->
@@ -879,51 +1028,36 @@
     /**
      * Bitcoin Address Component Controller
      * =====================================
-     * Manages theme toggling, address expansion animations, and clipboard operations.
+     * Follows Emil Kowalski's pattern: CSS transitions with state-driven classes
+     * for interruptibility. Keyframes can't retarget mid-flight.
      *
-     * @version 2.0.0
+     * @version 3.0.0
      * @author Matthew Ball
-     * @license MIT
-     *
-     * Features:
-     * - Theme persistence via localStorage
-     * - Crossfade animation for smooth address reveal
-     * - Modern Clipboard API with execCommand fallback
-     * - Animation locking to prevent rapid-fire clicks
-     * - Accessible copy feedback with icon animation
-     *
-     * Usage:
-     * - Components auto-initialize on DOM ready
-     * - Add data-component="address" with data-id attribute
-     * - Address 1 expands vertically (multiline), Address 2 stays inline
      */
     (function BitcoinAddressComponent() {
       'use strict';
 
-      // =========================================================================
-      // CONFIGURATION
-      // Centralized settings for easy customization.
-      // =========================================================================
       const CONFIG = {
-        // Bitcoin addresses - add more by incrementing the ID
         addresses: {
           1: {
             full: 'bc1qvhu3557twysq2ldn6dut6rmaj3qk04p60h9l79wk4lzgy0ca8mfsnffz65',
-            expandsVertically: false  // Fixed height - no expansion needed
+            expandsVertically: false
           },
           2: {
             full: '3HU3JVMSGushfkoWS9eyZjGzGQK5dD1zob',
-            expandsVertically: false // Inline crossfade only
+            expandsVertically: false
           }
         },
-
-        // Animation timing (ms)
         timing: {
-          animationLock: 350,    // Prevent rapid toggle clicks
-          copyFeedback: 2000     // Duration of "Copied" state
+          /**
+           * Animation lock should be slightly shorter than longest CSS transition
+           * to allow for interruptibility (Emil's principle)
+           *
+           * CSS --duration-reveal is 250ms, so we use 220ms
+           */
+          animationLock: 220,
+          copyFeedback: 2000
         },
-
-        // CSS class names (BEM convention)
         classes: {
           expanded: 'btc-address__display--expanded',
           copyHidden: 'copy-btn-inline--hidden',
@@ -937,31 +1071,18 @@
         }
       };
 
-      // =========================================================================
-      // STATE
-      // Reactive state management for component instances.
-      // =========================================================================
       const state = Object.fromEntries(
         Object.keys(CONFIG.addresses).map(id => [id, { expanded: false, animating: false }])
       );
 
-      // =========================================================================
-      // DOM UTILITIES
-      // Helper functions for DOM queries.
-      // =========================================================================
       const $ = (sel) => document.querySelector(sel);
       const $$ = (sel) => document.querySelectorAll(sel);
       const $id = (attr, id) => document.querySelector(`[${attr}="${id}"]`);
 
-      // =========================================================================
-      // THEME MODULE
-      // Dark/light mode toggle with localStorage persistence.
-      // =========================================================================
       const Theme = {
         STORAGE_KEY: 'btc-address-theme',
 
         init() {
-          // Only apply dark mode if explicitly saved in localStorage
           if (localStorage.getItem(this.STORAGE_KEY) === 'dark') {
             document.documentElement.classList.add('dark');
           }
@@ -973,10 +1094,6 @@
         }
       };
 
-      // =========================================================================
-      // ADDRESS TOGGLE MODULE
-      // Handles expand/collapse animations with crossfade effect.
-      // =========================================================================
       const AddressToggle = {
         toggle(id) {
           const s = state[id];
@@ -988,7 +1105,6 @@
           const { classes } = CONFIG;
           const { expandsVertically } = CONFIG.addresses[id];
 
-          // Get DOM elements
           const els = {
             display: $id('data-display', id),
             truncated: $id('data-truncated', id),
@@ -998,7 +1114,6 @@
             btnRow: $id('data-btn-row', id)
           };
 
-          // Apply state changes
           if (s.expanded) {
             if (expandsVertically) els.display.classList.add(classes.expanded);
             els.copyInline.classList.add(classes.copyHidden);
@@ -1015,18 +1130,12 @@
             els.full.classList.remove(classes.layerVisible);
           }
 
-          // Release animation lock
           setTimeout(() => { s.animating = false; }, CONFIG.timing.animationLock);
         }
       };
 
-      // =========================================================================
-      // CLIPBOARD MODULE
-      // Copy to clipboard with modern API and legacy fallback.
-      // =========================================================================
       const Clipboard = {
         async copy(text) {
-          // Try modern Clipboard API first
           if (navigator.clipboard?.writeText) {
             try {
               await navigator.clipboard.writeText(text);
@@ -1038,7 +1147,6 @@
           return this.fallback(text);
         },
 
-        // Legacy fallback for older browsers
         fallback(text) {
           const textarea = Object.assign(document.createElement('textarea'), {
             value: text,
@@ -1056,7 +1164,6 @@
           }
         },
 
-        // Visual feedback for successful copy
         showSuccess(iconEl, textEl) {
           const { classes, timing } = CONFIG;
 
@@ -1071,7 +1178,6 @@
           }, timing.copyFeedback);
         },
 
-        // Handle copy button click
         async handle(id, location) {
           const address = CONFIG.addresses[id].full;
           const success = await this.copy(address);
@@ -1084,29 +1190,21 @@
         }
       };
 
-      // =========================================================================
-      // EVENT BINDING
-      // Attach event listeners using event delegation where possible.
-      // =========================================================================
       function bindEvents() {
-        // Theme toggle
         $('#themeToggle')?.addEventListener('click', () => Theme.toggle());
 
-        // Toggle buttons (view/hide)
         $$('[data-toggle]').forEach(btn => {
           btn.addEventListener('click', () => {
             AddressToggle.toggle(parseInt(btn.dataset.toggle, 10));
           });
         });
 
-        // Inline copy buttons
         $$('[data-copy-inline]').forEach(btn => {
           btn.addEventListener('click', () => {
             Clipboard.handle(parseInt(btn.dataset.copyInline, 10), 'inline');
           });
         });
 
-        // Bottom copy buttons
         $$('[data-copy-btn]').forEach(btn => {
           btn.addEventListener('click', () => {
             Clipboard.handle(parseInt(btn.dataset.copyBtn, 10), 'bottom');
@@ -1114,16 +1212,11 @@
         });
       }
 
-      // =========================================================================
-      // INITIALIZATION
-      // Bootstrap the component when DOM is ready.
-      // =========================================================================
       function init() {
         Theme.init();
         bindEvents();
       }
 
-      // Execute on DOM ready
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
       } else {
