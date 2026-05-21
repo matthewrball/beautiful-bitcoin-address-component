@@ -222,7 +222,9 @@
       pointer-events: none;
       width: 0;
       padding: 0;
+      border: none;
       overflow: hidden;
+      visibility: hidden;
     }
 
     .copy-inline__text {
