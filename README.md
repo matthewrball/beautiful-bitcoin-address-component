@@ -1,14 +1,14 @@
-# Beautiful Bitcoin Address Component
+# Beautiful bitcoin address component
 
-A production-ready Web Component for displaying Bitcoin addresses with expand/collapse reveal, copy-to-clipboard, and light/dark theme support. Zero dependencies. Designed for wallet interfaces, payment flows, and educational resources.
+A production-ready web component for displaying bitcoin addresses with expand/collapse reveal, copy-to-clipboard, and light/dark theme support. Zero dependencies. Designed for wallet interfaces, payment flows, and educational resources.
 
 **[Live Demo](https://matthewball.me/bitcoin-address-component/)** | **[Bitcoin Design Guide Reference](https://bitcoin.design/guide/glossary/address/)**
 
 ## Preview
 
 <p align="center">
-  <img src="og-image.webp" alt="Bitcoin Address Component - Light mode" width="400">
-  <img src="component-dark-mode.webp" alt="Bitcoin Address Component - Dark mode" width="400">
+  <img src="og-image.webp" alt="bitcoin address component - light mode" width="400">
+  <img src="component-dark-mode.webp" alt="bitcoin address component - dark mode" width="400">
 </p>
 
 ## Quick Start
@@ -49,7 +49,7 @@ Addresses longer than 40 characters automatically use a multi-line expanded view
 
 | Attribute | Default | Description |
 |-----------|---------|-------------|
-| `address` | *required* | The full Bitcoin address string |
+| `address` | *required* | The full bitcoin address string |
 | `format` | `auto` | Address format: `bech32`, `p2sh`, `taproot`, `legacy`, or `auto` (detected from prefix) |
 | `label` | `Bitcoin address` | Label text displayed above the address field |
 | `theme` | `auto` | Color theme: `light`, `dark`, or `auto` (follows host page or `prefers-color-scheme`) |
