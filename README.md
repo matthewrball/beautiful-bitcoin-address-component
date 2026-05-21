@@ -171,6 +171,10 @@ This component follows the [Bitcoin Design Guide's](https://bitcoin.design/guide
 - **Progressive disclosure** — The truncated view shows just enough to identify the address. The full address is revealed on demand, reducing visual noise.
 - **Copy confirmation** — Animated icon feedback (copy to checkmark) gives clear confirmation that the address was copied, reducing the anxiety of handling sensitive financial data.
 
+### Motion design
+
+All animations in this component follow the [design-motion-principles](https://github.com/kylezantos/design-motion-principles) framework, drawing from techniques by Emil Kowalski, Jakub Krehel, and Jhey Tompkins. This includes spring-based easing curves for expand/collapse transitions, expo-out timing for copy feedback, and clip-path reveals for the full address. Every animation respects `prefers-reduced-motion` and uses durations tuned to feel responsive without being distracting.
+
 ## Browser Support
 
 Chrome 80+, Firefox 75+, Safari 13+, Edge 80+. The component uses `customElements.define` (supported in all modern browsers) and `navigator.clipboard` with `execCommand('copy')` fallback.
