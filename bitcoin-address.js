@@ -572,7 +572,6 @@
     _syncThemeFromHost() {
       var html = document.documentElement;
       var isDark = html.classList.contains('dark') || html.classList.contains('theme--dark');
-      if (!isDark) isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       this.classList.toggle('dark', isDark);
     }
   }
