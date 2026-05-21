@@ -99,10 +99,6 @@
     .container { display: flex; flex-direction: column; min-height: 130px; }
     .container.multiline { min-height: 148px; }
 
-    :host(.dark) {
-      background-color: var(--_bg-secondary);
-      border-radius: var(--_radius);
-    }
 
     .label {
       font-size: 14px;
