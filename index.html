@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Bitcoin Address Component | Onramp Bitcoin</title>
 
-  <!-- Primary Meta Tags -->
   <meta name="title" content="Bitcoin Address Component | Onramp Bitcoin">
   <meta name="description" content="Secure Bitcoin address display component for Native SegWit (Bech32) P2WSH and Wrapped Segwit (P2SH-P2WSH) addresses. Designed by Matthew Ball for Onramp Bitcoin.">
 
-  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://matthewball.me/bitcoin-address-component/">
   <meta property="og:title" content="Bitcoin Address Component | Onramp Bitcoin">
@@ -18,84 +16,50 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://matthewball.me/bitcoin-address-component/">
   <meta name="twitter:title" content="Bitcoin Address Component | Onramp Bitcoin">
   <meta name="twitter:description" content="Secure Bitcoin address display component for Native SegWit (Bech32) P2WSH and Wrapped Segwit (P2SH-P2WSH) addresses.">
   <meta name="twitter:image" content="https://matthewball.me/bitcoin-address-component/og-image.webp">
 
-  <!-- Favicon -->
   <link rel="icon" href="https://matthewball.me/wp-content/uploads/2025/01/cropped-matthew-ball-logo-1-32x32.png" sizes="32x32">
   <link rel="icon" href="https://matthewball.me/wp-content/uploads/2025/01/cropped-matthew-ball-logo-1-192x192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="https://matthewball.me/wp-content/uploads/2025/01/cropped-matthew-ball-logo-1-180x180.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    /* === DESIGN TOKENS === */
     :root {
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --font-mono: 'Source Code Pro', ui-monospace, monospace;
-
       --color-text-primary: #181d27;
       --color-text-secondary: #414651;
       --color-text-tertiary: #535862;
       --color-border: #d5d7da;
-      --color-bg-subtle: #fafafa;
       --color-bg-primary: #f3f4f6;
       --color-bg-secondary: #ffffff;
       --color-bg-hover: #f9fafb;
-      --color-success: #079455;
       --color-toast-bg: #1f2937;
-      --color-icon: #a4a7ae;
-      --color-icon-success: #079455;
-
       --shadow-xs: 0 1px 2px rgba(10, 13, 18, 0.05);
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-
-      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-      --duration-fast: 150ms;
-      --duration-normal: 300ms;
-      --duration-slow: 400ms;
-
-      --space-1: 4px;
-      --space-2: 6px;
-      --space-3: 8px;
-      --space-4: 12px;
-      --space-5: 16px;
-      --space-6: 24px;
-      --space-7: 32px;
-      --space-8: 48px;
-
       --radius-sm: 8px;
-      --radius-md: 12px;
       --radius-lg: 16px;
     }
 
-    /* === DARK MODE === */
     .dark {
       --color-text-primary: #f5f5f6;
       --color-text-secondary: #cecfd2;
       --color-text-tertiary: #94969c;
       --color-border: #333741;
-      --color-bg-subtle: #1f242f;
       --color-bg-primary: #0c111d;
       --color-bg-secondary: #161b26;
       --color-bg-hover: #1f242f;
-      --color-success: #47cd89;
       --color-toast-bg: #374151;
-      --color-icon: #85888e;
-      --color-icon-success: #47cd89;
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
       --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
-    /* === RESET === */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 
@@ -105,84 +69,69 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--space-7);
-      transition: background-color var(--duration-normal) ease;
+      padding: 32px;
+      transition: background-color 300ms ease;
       -webkit-overflow-scrolling: touch;
     }
 
-    /* === LAYOUT === */
     .page-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: var(--space-6);
+      gap: 24px;
       max-width: 512px;
       width: 100%;
     }
 
-    .section {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-      width: 100%;
-    }
+    .section { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 
     .section__heading {
       font-size: 14px;
       font-weight: 600;
       color: var(--color-text-tertiary);
       line-height: 20px;
-      transition: color var(--duration-normal) ease;
+      transition: color 300ms ease;
     }
 
     .card {
       background-color: var(--color-bg-secondary);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
-      padding: var(--space-8);
-      transition: background-color var(--duration-normal) ease, box-shadow var(--duration-normal) ease;
+      padding: 48px;
+      transition: background-color 300ms ease, box-shadow 300ms ease;
     }
 
-    /* === NAVIGATION === */
     .back-link {
       position: fixed;
-      top: var(--space-5);
-      left: var(--space-5);
+      top: 16px;
+      left: 16px;
       display: flex;
       align-items: center;
-      gap: var(--space-2);
+      gap: 6px;
       padding: 10px 14px;
       border-radius: var(--radius-sm);
       background-color: var(--color-bg-secondary);
       border: 1px solid var(--color-border);
       box-shadow: var(--shadow-xs);
       text-decoration: none;
-      transition: background-color var(--duration-fast) ease-out;
+      transition: background-color 150ms ease-out;
     }
 
     .back-link:hover { background-color: var(--color-bg-hover); }
     .back-link__icon { width: 16px; height: 16px; color: var(--color-text-tertiary); flex-shrink: 0; }
+    .back-link__text { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); line-height: 20px; transition: color 300ms ease; }
 
-    .back-link__text {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--color-text-secondary);
-      line-height: 20px;
-      transition: color var(--duration-normal) ease;
-    }
-
-    /* === THEME TOGGLE === */
     .theme-toggle {
       position: fixed;
-      top: var(--space-5);
-      right: var(--space-5);
-      padding: var(--space-4);
+      top: 16px;
+      right: 16px;
+      padding: 12px;
       border-radius: var(--radius-sm);
       background-color: var(--color-bg-secondary);
       border: 1px solid var(--color-border);
       box-shadow: var(--shadow-xs);
       cursor: pointer;
-      transition: background-color var(--duration-fast) ease-out;
+      transition: background-color 150ms ease-out;
     }
 
     .theme-toggle:hover { background-color: var(--color-bg-hover); }
@@ -191,401 +140,73 @@
     .dark .theme-toggle__icon--sun { display: block; }
     .dark .theme-toggle__icon--moon { display: none; }
 
-    /* === BITCOIN ADDRESS COMPONENT === */
-    .btc-address {
-      display: flex;
-      flex-direction: column;
-      width: 380px;
-      height: 130px;
-    }
-
-    .btc-address__label {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      line-height: 20px;
-      margin-bottom: var(--space-2);
-      transition: color var(--duration-normal) ease;
-    }
-
-    .btc-address__row {
-      display: flex;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--color-border);
-      box-shadow: var(--shadow-xs);
-      overflow: hidden;
-      background-color: var(--color-bg-subtle);
-      transition: border-color var(--duration-normal) ease;
-    }
-
-    .btc-address__display {
-      flex: 1;
-      background-color: var(--color-bg-subtle);
-      padding: 2px 14px 0;
-      display: flex;
-      align-items: center;
-      height: 44px;
-      overflow: hidden;
-      transition: background-color var(--duration-normal) ease;
-    }
-
-    /* --- Multiline variant (long addresses like Bech32) --- */
-    .btc-address--multiline { height: 148px; }
-    .btc-address--multiline .btc-address__display { height: 78px; padding-top: 0; padding-bottom: 0; }
-    .btc-address--multiline .btc-address__crossfade { height: auto; }
-
-    .btc-address--multiline .btc-address__layer--absolute {
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .btc-address--multiline .btc-address__layer--visible {
-      animation-duration: 250ms;
-      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* --- Address text --- */
-    .btc-address__text {
-      font-family: var(--font-mono);
-      font-size: 16px;
-      line-height: 1.2;
-      background-color: transparent;
-    }
-
-    .btc-address__text--full {
-      white-space: normal;
-      word-break: break-all;
-      line-height: 1.4;
-    }
-
-    .btc-address__highlight {
-      color: var(--color-success);
-      line-height: 1.2;
-      transition: color var(--duration-normal) ease;
-    }
-
-    .btc-address__muted {
-      color: var(--color-text-tertiary);
-      line-height: 1.2;
-      transition: color var(--duration-normal) ease;
-    }
-
-    .btc-address__group { margin-right: 0.25em; }
-
-    /* --- Crossfade animation system --- */
-    @keyframes clip-reveal {
-      from { clip-path: inset(0 100% 0 0); }
-      to { clip-path: inset(0 0 0 0); }
-    }
-
-    .btc-address__crossfade {
-      position: relative;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      background-color: transparent;
-    }
-
-    .btc-address__layer {
-      background-color: transparent;
-      filter: blur(0px);
-      transition: opacity 100ms ease-out, filter 100ms ease-out;
-    }
-
-    .btc-address__layer--hidden {
-      opacity: 0;
-      filter: blur(4px);
-      transition: opacity 100ms ease-out, filter 100ms ease-out;
-    }
-
-    .btc-address__layer--absolute {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      width: 350px;
-      transform: translateY(-50%);
-      opacity: 0;
-      filter: blur(4px);
-      background-color: var(--color-bg-subtle) !important;
-      will-change: opacity, filter;
-      transition: opacity 100ms ease-out, filter 100ms ease-out;
-    }
-
-    .btc-address__layer--visible {
-      opacity: 1;
-      filter: blur(0px);
-      animation: clip-reveal 150ms cubic-bezier(0.25, 0, 0.5, 1) both;
-    }
-
-    /* === COPY BUTTON (INLINE) === */
-    .copy-btn-inline {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      padding: 10px var(--space-5);
-      background-color: var(--color-bg-subtle);
-      border: none;
-      border-left: 1px solid var(--color-border);
-      cursor: pointer;
-      transition:
-        opacity var(--duration-normal) var(--ease-out-expo),
-        transform 450ms var(--ease-spring),
-        width 450ms var(--ease-out-expo),
-        padding 450ms var(--ease-out-expo),
-        background-color var(--duration-fast) ease-out;
-    }
-
-    .copy-btn-inline:hover { background-color: var(--color-bg-primary); }
-    .copy-btn-inline:active { transform: scale(0.97); }
-
-    .copy-btn-inline--hidden {
-      opacity: 0;
-      transform: translateX(12px);
-      pointer-events: none;
-      width: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    .copy-btn-inline__text {
-      display: inline-block;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--color-text-secondary);
-      line-height: 24px;
-      padding: 0 2px;
-      width: 38px;
-      text-align: center;
-      transition: color 250ms var(--ease-out-expo), width var(--duration-slow) var(--ease-spring);
-    }
-
-    .copy-btn-inline__text--success {
-      color: var(--color-success);
-      width: 56px;
-    }
-
-    /* === ACTION BUTTONS === */
-    .btn-container {
-      position: relative;
-      height: 36px;
-      margin-top: var(--space-2);
-      flex-shrink: 0;
-    }
-
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-1);
-      padding: var(--space-3) var(--space-4);
-      background-color: var(--color-bg-secondary);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-xs);
-      cursor: pointer;
-      transition: background-color var(--duration-fast) ease-out;
-    }
-
-    .btn:hover { background-color: var(--color-bg-hover); }
-    .btn:active { transform: scale(0.97); }
-    .btn--full-width { width: 100%; }
-    .btn--flex { flex: 1; }
-
-    .btn__text {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--color-text-secondary);
-      line-height: 20px;
-      padding: 0 2px;
-      transition: color var(--duration-normal) ease;
-    }
-
-    .btn__text--copy { width: 34px; }
-    .btn__text--copy-success { width: 48px; color: var(--color-success); }
-    .btn__icon { flex-shrink: 0; }
-    .btn__icon path { stroke: var(--color-icon); transition: stroke var(--duration-normal) ease; }
-
-    .btn-row {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      gap: var(--space-2);
-      opacity: 0;
-      transform: translateY(6px) scale(0.97);
-      pointer-events: none;
-      transition: opacity 350ms var(--ease-out-expo), transform 350ms var(--ease-spring);
-    }
-
-    .btn-row--visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-
-    .btn-view {
-      position: absolute;
-      inset: 0;
-      transition: opacity 350ms var(--ease-out-expo), transform 350ms var(--ease-spring);
-    }
-
-    .btn-view--hidden {
-      opacity: 0;
-      transform: translateY(-6px) scale(0.97);
-      pointer-events: none;
-    }
-
-    /* === COPY ICON ANIMATION === */
-    .copy-icon { position: relative; width: 20px; height: 20px; flex-shrink: 0; }
-    .copy-icon__svg { position: absolute; inset: 0; }
-
-    .copy-icon__svg--copy {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-      transition: opacity 350ms var(--ease-out-expo) 50ms, transform 500ms var(--ease-spring) 50ms;
-    }
-
-    .copy-icon__svg--check {
-      opacity: 0;
-      transform: scale(0.3) rotate(-45deg);
-      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-slow) var(--ease-out-expo);
-    }
-
-    .copy-icon--success .copy-icon__svg--copy {
-      opacity: 0 !important;
-      transform: scale(0.3) rotate(45deg) !important;
-      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-slow) var(--ease-out-expo) !important;
-    }
-
-    .copy-icon--success .copy-icon__svg--check {
-      opacity: 1 !important;
-      transform: scale(1) rotate(0deg) !important;
-      transition: opacity var(--duration-normal) var(--ease-out-expo) 50ms, transform 500ms var(--ease-spring) 50ms !important;
-    }
-
-    .copy-icon__svg--copy path { stroke: var(--color-icon); }
-    .copy-icon__svg--check path { stroke: var(--color-icon-success); }
-
-    /* === TOAST === */
     .toast {
       position: fixed;
-      bottom: var(--space-7);
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
       background-color: var(--color-toast-bg);
       color: white;
-      padding: var(--space-3) var(--space-5);
+      padding: 8px 16px;
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-lg);
       opacity: 0;
       pointer-events: none;
-      transition: opacity var(--duration-normal) ease;
+      transition: opacity 300ms ease;
     }
 
-    /* === GITHUB LINK === */
     .github-link {
       display: inline-flex;
       align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-3) var(--space-4);
-      margin-top: calc(-1 * var(--space-3));
+      gap: 6px;
+      padding: 8px 12px;
+      margin-top: -8px;
       background-color: var(--color-bg-secondary);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-xs);
       text-decoration: none;
-      transition: background-color var(--duration-fast) ease-out;
+      transition: background-color 150ms ease-out;
     }
 
     .github-link:hover { background-color: var(--color-bg-hover); }
     .github-link__icon { width: 18px; height: 18px; color: var(--color-text-secondary); flex-shrink: 0; }
+    .github-link__text { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); line-height: 20px; }
 
-    .github-link__text {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--color-text-secondary);
-      line-height: 20px;
-    }
-
-    /* === FOOTER === */
     .footer {
       position: fixed;
-      bottom: var(--space-6);
+      bottom: 24px;
       left: 0;
       right: 0;
       text-align: center;
       font-size: 14px;
       color: var(--color-text-tertiary);
       line-height: 20px;
-      transition: color var(--duration-normal) ease;
+      transition: color 300ms ease;
     }
 
-    .footer__link {
-      color: var(--color-text-secondary);
-      text-decoration: none;
-      transition: color var(--duration-fast) ease;
-    }
-
+    .footer__link { color: var(--color-text-secondary); text-decoration: none; transition: color 150ms ease; }
     .footer__link:hover { color: var(--color-text-primary); text-decoration: underline; }
 
-    /* === RESPONSIVE === */
+    bitcoin-address {
+      --btc-font-mono: 'Source Code Pro', ui-monospace, monospace;
+    }
+
     @media (max-width: 480px) {
-      body { padding: var(--space-5); padding-top: 72px; padding-bottom: 72px; }
-
-      .card { padding: var(--space-6); border-radius: var(--radius-md); overflow: hidden; }
+      body { padding: 16px; padding-top: 72px; padding-bottom: 72px; }
+      .card { padding: 24px; border-radius: 12px; overflow: hidden; }
       .page-wrapper { gap: 20px; }
-      .section { gap: var(--space-3); }
-
-      .btc-address { width: 100%; height: 148px; overflow: hidden; }
-      .btc-address__text { font-size: 14px; }
-      .btc-address__display { padding: 2px var(--space-4) 0; height: 40px; }
-      .btc-address--multiline .btc-address__display { height: 58px; }
-
-      .btc-address__crossfade,
-      .btc-address__layer,
-      .btc-address__text { background-color: transparent !important; }
-
-      .copy-btn-inline { padding: 10px var(--space-4); gap: var(--space-1); }
-      .copy-btn-inline__text { font-size: 14px; width: 34px; }
-      .copy-btn-inline__text--success { width: 52px; }
-
-      .btn { padding: 10px var(--space-3); gap: var(--space-1); }
-      .btn__text { font-size: 14px; }
-      .btn__icon { width: 18px; height: 18px; }
-      .btn-container { height: 40px; }
-      .btn__text--copy { width: 34px; }
-      .btn__text--copy-success { width: 48px; }
-
-      .theme-toggle { top: var(--space-4); right: var(--space-4); padding: 10px; }
+      .section { gap: 8px; }
+      .theme-toggle { top: 12px; right: 12px; padding: 10px; }
       .theme-toggle__icon { width: 18px; height: 18px; }
-
-      .back-link { top: var(--space-4); left: var(--space-4); padding: 10px; gap: var(--space-1); }
+      .back-link { top: 12px; left: 12px; padding: 10px; gap: 4px; }
       .back-link__icon { width: 14px; height: 14px; }
       .back-link__text { font-size: 12px; }
-
-      .toast {
-        bottom: 70px;
-        font-size: 14px;
-        padding: var(--space-3) var(--space-4);
-        left: var(--space-5);
-        right: var(--space-5);
-        transform: none;
-        text-align: center;
-      }
-
-      .github-link { padding: var(--space-2) var(--space-3); }
+      .toast { bottom: 70px; font-size: 14px; padding: 8px 12px; left: 16px; right: 16px; transform: none; text-align: center; }
+      .github-link { padding: 6px 8px; }
       .github-link__icon { width: 16px; height: 16px; }
       .github-link__text { font-size: 12px; }
-
-      .footer { bottom: var(--space-4); font-size: 12px; padding: 0 var(--space-5); }
-    }
-
-    @media (pointer: coarse) {
-      .btn, .copy-btn-inline, .theme-toggle { min-height: 44px; }
-    }
-
-    @media (hover: none) and (pointer: coarse) {
-      * { touch-action: manipulation; }
+      .footer { bottom: 12px; font-size: 12px; padding: 0 16px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -593,118 +214,33 @@
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-        filter: none !important;
       }
     }
   </style>
 </head>
 <body>
   <a href="https://matthewball.me" class="back-link">
-    <svg class="back-link__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-    </svg>
+    <svg class="back-link__icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
     <span class="back-link__text">Back to matthewball.me</span>
   </a>
 
   <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <svg class="theme-toggle__icon theme-toggle__icon--sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-    </svg>
-    <svg class="theme-toggle__icon theme-toggle__icon--moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-    </svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--sun" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+    <svg class="theme-toggle__icon theme-toggle__icon--moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
   </button>
 
   <main class="page-wrapper">
-    <!-- Native SegWit (Bech32) P2WSH -->
     <section class="section">
       <h2 class="section__heading">Native SegWit (Bech32) P2WSH</h2>
       <div class="card">
-        <div class="btc-address btc-address--multiline" data-component="address" data-id="1">
-          <label class="btc-address__label">Bitcoin address</label>
-          <div class="btc-address__row">
-            <div class="btc-address__display">
-              <div class="btc-address__crossfade">
-                <span class="btc-address__text btc-address__layer" data-truncated="1"><span class="btc-address__highlight">bc1qvh</span><span class="btc-address__muted">u35...mfs</span><span class="btc-address__highlight">nffz65</span></span>
-                <span class="btc-address__text btc-address__text--full btc-address__layer btc-address__layer--absolute" data-full="1"><span class="btc-address__highlight btc-address__group">bc1qvh</span><span class="btc-address__muted"><span class="btc-address__group">u3557tw</span><span class="btc-address__group">ysq2ldn</span><span class="btc-address__group">6dut6rm</span><span class="btc-address__group">aj3q</span><br><span class="btc-address__group">k04p60h</span><span class="btc-address__group">9l79wk4</span><span class="btc-address__group">lzgy0ca</span><span class="btc-address__group">8mfs</span></span><span class="btc-address__highlight">nffz65</span></span>
-              </div>
-            </div>
-            <button class="copy-btn-inline" data-copy-inline="1" aria-label="Copy address">
-              <span class="copy-icon" data-copy-icon="1">
-                <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <span class="copy-btn-inline__text" data-copy-text="1">Copy</span>
-            </button>
-          </div>
-          <div class="btn-container">
-            <div class="btn-view" data-view-btn="1">
-              <button class="btn btn--full-width" data-toggle="1">
-                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2.017 10.595c-.114-.18-.17-.27-.202-.409a.994.994 0 010-.372c.032-.139.088-.229.202-.409C2.954 7.921 5.746 4.167 10 4.167s7.046 3.754 7.984 5.238c.113.18.17.27.201.409a.994.994 0 010 .372c-.032.139-.088.229-.201.409C17.046 12.079 14.254 15.833 10 15.833S2.955 12.08 2.017 10.595z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="btn__text">View full address</span>
-              </button>
-            </div>
-            <div class="btn-row" data-btn-row="1">
-              <button class="btn btn--flex" data-toggle="1">
-                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8.952 4.244A7.374 7.374 0 0110 4.167c4.254 0 7.046 3.754 7.983 5.238.114.18.17.27.202.409a.994.994 0 010 .372c-.032.139-.088.229-.202.409-.322.51-.814 1.21-1.47 1.905M5.633 5.633C3.762 6.956 2.504 8.813 2.016 9.586c-.113.18-.17.27-.201.408a.994.994 0 000 .373c.031.138.088.228.201.408C2.954 12.2 5.746 15.953 10 15.953c1.713 0 3.161-.64 4.366-1.587M2.5 2.5l15 15M8.232 8.232A2.5 2.5 0 0010 12.5c.69 0 1.318-.283 1.768-.732" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="btn__text">Hide full address</span>
-              </button>
-              <button class="btn btn--flex" data-copy-btn="1" aria-label="Copy address">
-                <span class="copy-icon" data-copy-icon-bottom="1">
-                  <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span class="btn__text btn__text--copy" data-copy-text-bottom="1">Copy</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <bitcoin-address address="bc1qvhu3557twysq2ldn6dut6rmaj3qk04p60h9l79wk4lzgy0ca8mfsnffz65"></bitcoin-address>
       </div>
     </section>
 
-    <!-- Wrapped SegWit (P2SH-P2WSH) -->
     <section class="section">
       <h2 class="section__heading">Wrapped Segwit (P2SH-P2WSH)</h2>
       <div class="card">
-        <div class="btc-address" data-component="address" data-id="2">
-          <label class="btc-address__label">Bitcoin address</label>
-          <div class="btc-address__row">
-            <div class="btc-address__display">
-              <div class="btc-address__crossfade">
-                <span class="btc-address__text btc-address__layer" data-truncated="2"><span class="btc-address__highlight">3HU3JV</span><span class="btc-address__muted">MSG...QK5</span><span class="btc-address__highlight">dD1zob</span></span>
-                <span class="btc-address__text btc-address__layer btc-address__layer--absolute" data-full="2"><span class="btc-address__highlight btc-address__group">3HU3JV</span><span class="btc-address__muted"><span class="btc-address__group">MSGushf</span><span class="btc-address__group">koWS9ey</span><span class="btc-address__group">ZjGzGQK5</span></span><span class="btc-address__highlight">dD1zob</span></span>
-              </div>
-            </div>
-            <button class="copy-btn-inline" data-copy-inline="2" aria-label="Copy address">
-              <span class="copy-icon" data-copy-icon="2">
-                <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <span class="copy-btn-inline__text" data-copy-text="2">Copy</span>
-            </button>
-          </div>
-          <div class="btn-container">
-            <div class="btn-view" data-view-btn="2">
-              <button class="btn btn--full-width" data-toggle="2">
-                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2.017 10.595c-.114-.18-.17-.27-.202-.409a.994.994 0 010-.372c.032-.139.088-.229.202-.409C2.954 7.921 5.746 4.167 10 4.167s7.046 3.754 7.984 5.238c.113.18.17.27.201.409a.994.994 0 010 .372c-.032.139-.088.229-.201.409C17.046 12.079 14.254 15.833 10 15.833S2.955 12.08 2.017 10.595z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="btn__text">View full address</span>
-              </button>
-            </div>
-            <div class="btn-row" data-btn-row="2">
-              <button class="btn btn--flex" data-toggle="2">
-                <svg class="btn__icon" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8.952 4.244A7.374 7.374 0 0110 4.167c4.254 0 7.046 3.754 7.983 5.238.114.18.17.27.202.409a.994.994 0 010 .372c-.032.139-.088.229-.202.409-.322.51-.814 1.21-1.47 1.905M5.633 5.633C3.762 6.956 2.504 8.813 2.016 9.586c-.113.18-.17.27-.201.408a.994.994 0 000 .373c.031.138.088.228.201.408C2.954 12.2 5.746 15.953 10 15.953c1.713 0 3.161-.64 4.366-1.587M2.5 2.5l15 15M8.232 8.232A2.5 2.5 0 0010 12.5c.69 0 1.318-.283 1.768-.732" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span class="btn__text">Hide full address</span>
-              </button>
-              <button class="btn btn--flex" data-copy-btn="2" aria-label="Copy address">
-                <span class="copy-icon" data-copy-icon-bottom="2">
-                  <svg class="copy-icon__svg copy-icon__svg--copy" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  <svg class="copy-icon__svg copy-icon__svg--check" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16.667 5L7.5 14.167 3.333 10" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span class="btn__text btn__text--copy" data-copy-text-bottom="2">Copy</span>
-              </button>
-            </div>
-          </div>
-        </div>
+        <bitcoin-address address="3HU3JVMSGushfkoWS9eyZjGzGQK5dD1zob"></bitcoin-address>
       </div>
     </section>
 
@@ -720,127 +256,24 @@
     Designed by Matthew Ball for <a href="https://www.onrampbitcoin.com/" class="footer__link" target="_blank" rel="noopener noreferrer">Onramp Bitcoin</a> on <a href="https://mempool.space/block/0000000000000000000032bcfdb9b513ff18a9458de954e692bfb639047d51b2" class="footer__link" target="_blank" rel="noopener noreferrer">933412</a>
   </footer>
 
+  <script src="bitcoin-address.js"></script>
   <script>
     (function() {
-      'use strict';
-
-      var ADDRESSES = {
-        1: 'bc1qvhu3557twysq2ldn6dut6rmaj3qk04p60h9l79wk4lzgy0ca8mfsnffz65',
-        2: '3HU3JVMSGushfkoWS9eyZjGzGQK5dD1zob'
-      };
-
-      var TIMING = { animationLock: 350, copyFeedback: 2000 };
-
-      var CLS = {
-        copyHidden: 'copy-btn-inline--hidden',
-        viewHidden: 'btn-view--hidden',
-        rowVisible: 'btn-row--visible',
-        layerHidden: 'btc-address__layer--hidden',
-        layerVisible: 'btc-address__layer--visible',
-        copySuccess: 'copy-icon--success',
-        inlineTextSuccess: 'copy-btn-inline__text--success',
-        btnTextSuccess: 'btn__text--copy-success'
-      };
-
-      var state = { 1: { expanded: false, animating: false }, 2: { expanded: false, animating: false } };
-
-      var $ = function(s) { return document.querySelector(s); };
-      var $$ = function(s) { return document.querySelectorAll(s); };
-      var $attr = function(a, v) { return document.querySelector('[' + a + '="' + v + '"]'); };
-
-      // Theme
       var THEME_KEY = 'btc-address-theme';
       if (localStorage.getItem(THEME_KEY) === 'dark') document.documentElement.classList.add('dark');
 
-      $('#themeToggle').addEventListener('click', function() {
+      document.getElementById('themeToggle').addEventListener('click', function() {
         var isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
       });
 
-      // Toggle
-      function toggle(id) {
-        var s = state[id];
-        if (s.animating) return;
-        s.animating = true;
-        s.expanded = !s.expanded;
-
-        var els = {
-          truncated: $attr('data-truncated', id),
-          full: $attr('data-full', id),
-          copyInline: $attr('data-copy-inline', id),
-          viewBtn: $attr('data-view-btn', id),
-          btnRow: $attr('data-btn-row', id)
-        };
-
-        if (s.expanded) {
-          els.copyInline.classList.add(CLS.copyHidden);
-          els.viewBtn.classList.add(CLS.viewHidden);
-          els.btnRow.classList.add(CLS.rowVisible);
-          els.truncated.classList.add(CLS.layerHidden);
-          els.full.classList.add(CLS.layerVisible);
-        } else {
-          els.copyInline.classList.remove(CLS.copyHidden);
-          els.viewBtn.classList.remove(CLS.viewHidden);
-          els.btnRow.classList.remove(CLS.rowVisible);
-          els.truncated.classList.remove(CLS.layerHidden);
-          els.full.classList.remove(CLS.layerVisible);
-        }
-
-        setTimeout(function() { s.animating = false; }, TIMING.animationLock);
-      }
-
-      // Clipboard
-      function copyToClipboard(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          return navigator.clipboard.writeText(text).then(function() { return true; }).catch(function() { return fallbackCopy(text); });
-        }
-        return Promise.resolve(fallbackCopy(text));
-      }
-
-      function fallbackCopy(text) {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
-        document.body.appendChild(ta);
-        ta.select();
-        try { return document.execCommand('copy'); }
-        catch(e) { return false; }
-        finally { ta.remove(); }
-      }
-
-      function showCopySuccess(iconEl, textEl, isInline) {
-        iconEl.classList.add(CLS.copySuccess);
-        textEl.classList.add(isInline ? CLS.inlineTextSuccess : CLS.btnTextSuccess);
-        textEl.textContent = 'Copied';
-
-        setTimeout(function() {
-          iconEl.classList.remove(CLS.copySuccess);
-          textEl.classList.remove(isInline ? CLS.inlineTextSuccess : CLS.btnTextSuccess);
-          textEl.textContent = 'Copy';
-        }, TIMING.copyFeedback);
-      }
-
-      function handleCopy(id, location) {
-        copyToClipboard(ADDRESSES[id]).then(function(success) {
-          if (!success) return;
-          var isInline = location === 'inline';
-          var iconEl = $attr(isInline ? 'data-copy-icon' : 'data-copy-icon-bottom', id);
-          var textEl = $attr(isInline ? 'data-copy-text' : 'data-copy-text-bottom', id);
-          showCopySuccess(iconEl, textEl, isInline);
+      var toast = document.getElementById('toast');
+      document.querySelectorAll('bitcoin-address').forEach(function(el) {
+        el.addEventListener('bitcoin-address:copy', function(e) {
+          if (!e.detail.success) return;
+          toast.style.opacity = '1';
+          setTimeout(function() { toast.style.opacity = '0'; }, 2000);
         });
-      }
-
-      // Event binding
-      $$('[data-toggle]').forEach(function(btn) {
-        btn.addEventListener('click', function() { toggle(parseInt(btn.dataset.toggle, 10)); });
-      });
-
-      $$('[data-copy-inline]').forEach(function(btn) {
-        btn.addEventListener('click', function() { handleCopy(parseInt(btn.dataset.copyInline, 10), 'inline'); });
-      });
-
-      $$('[data-copy-btn]').forEach(function(btn) {
-        btn.addEventListener('click', function() { handleCopy(parseInt(btn.dataset.copyBtn, 10), 'bottom'); });
       });
     })();
   </script>

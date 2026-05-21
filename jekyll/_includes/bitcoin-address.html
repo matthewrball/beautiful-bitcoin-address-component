@@ -1,0 +1,41 @@
+{% comment %}
+  Bitcoin Address Component
+
+  Usage:
+  {% include bitcoin-address.html address="bc1qvhu3557tw..." %}
+  {% include bitcoin-address.html address="3HU3JV..." format="p2sh" label="Deposit address" %}
+
+  Parameters:
+    address  (required) - Full bitcoin address string
+    label    (optional) - Label text (default: "Bitcoin address")
+    format   (optional) - bech32/p2sh/taproot/legacy/auto (default: auto)
+    caption  (optional) - Figcaption text (supports markdown)
+{% endcomment %}
+
+<figure class="bitcoin-address-wrapper{% if include.layout %} -{{ include.layout }}{% endif %}">
+  <noscript>
+    <div style="font-family:monospace;padding:12px;border:1px solid #d5d7da;border-radius:8px;word-break:break-all;">
+      <strong>{{ include.label | default: "Bitcoin address" }}</strong><br>
+      <code>{{ include.address }}</code>
+    </div>
+  </noscript>
+  <bitcoin-address
+    address="{{ include.address }}"
+    {% if include.format %}format="{{ include.format }}"{% endif %}
+    {% if include.label %}label="{{ include.label }}"{% endif %}
+    theme="auto"
+  ></bitcoin-address>
+  {% if include.caption %}
+  <figcaption>{{ include.caption | markdownify }}</figcaption>
+  {% endif %}
+</figure>
+
+<script>
+(function() {
+  if (document.querySelector('script[data-bitcoin-address]')) return;
+  var s = document.createElement('script');
+  s.setAttribute('data-bitcoin-address', '');
+  s.src = '{{ "/js/bitcoin-address.js" | relative_url }}';
+  document.body.appendChild(s);
+})();
+</script>
