@@ -185,7 +185,10 @@
       background-color: var(--_bg-subtle) !important;
       will-change: opacity, filter;
       transition: opacity 100ms ease-out, filter 100ms ease-out;
+      pointer-events: none;
     }
+
+    .layer--visible { pointer-events: auto; }
 
     .layer--visible {
       opacity: 1;
