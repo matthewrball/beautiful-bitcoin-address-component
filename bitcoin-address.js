@@ -107,7 +107,7 @@
       border-radius: var(--_radius);
       border: 1px solid var(--_border);
       box-shadow: var(--_shadow-xs);
-      overflow: hidden;
+      overflow: clip;
       background-color: var(--_bg-subtle);
       transition: border-color 300ms ease;
     }
@@ -121,6 +121,7 @@
       align-items: center;
       min-height: 44px;
       position: relative;
+      cursor: text;
       transition: background-color 300ms ease;
     }
 
@@ -151,7 +152,6 @@
       display: flex;
       align-items: center;
       background-color: transparent;
-      cursor: text;
     }
 
     .multiline .crossfade { height: auto; }
