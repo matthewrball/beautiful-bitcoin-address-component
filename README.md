@@ -6,9 +6,10 @@ A production-ready Web Component for displaying Bitcoin addresses with expand/co
 
 ## Preview
 
-| Light | Dark |
-|-------|------|
-| ![Light mode](og-image.webp) | Coming soon |
+<p align="center">
+  <img src="og-image.webp" alt="Bitcoin Address Component - Light mode" width="400">
+  <img src="component-dark-mode.webp" alt="Bitcoin Address Component - Dark mode" width="400">
+</p>
 
 ## Quick Start
 
