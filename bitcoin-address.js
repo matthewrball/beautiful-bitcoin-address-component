@@ -32,17 +32,32 @@
     return { prefix: prefix, middle: truncMiddle, suffix: suffix };
   }
 
-  function computeGroups(address) {
+  function splitIntoGroups(str, size) {
+    var groups = [];
+    for (var i = 0; i < str.length; i += size) {
+      groups.push(str.slice(i, i + size));
+    }
+    return groups;
+  }
+
+  function computeGroups(address, multi) {
     var prefixLen = 6;
     var suffixLen = 6;
     var prefix = address.slice(0, prefixLen);
     var suffix = address.slice(-suffixLen);
     var body = address.slice(prefixLen, -suffixLen);
-    var groups = [];
-    for (var i = 0; i < body.length; i += 7) {
-      groups.push(body.slice(i, i + 7));
+
+    if (multi) {
+      var mid = Math.ceil(body.length / 2);
+      return {
+        prefix: prefix,
+        line1: splitIntoGroups(body.slice(0, mid), 7),
+        line2: splitIntoGroups(body.slice(mid), 7),
+        suffix: suffix
+      };
     }
-    return { prefix: prefix, groups: groups, suffix: suffix };
+
+    return { prefix: prefix, groups: splitIntoGroups(body, 7), suffix: suffix };
   }
 
   var STYLES = `
@@ -341,18 +356,17 @@
       '<span class="highlight">' + t.suffix + '</span>';
   }
 
-  function buildFullHTML(f, multi) {
-    var groupsHTML = f.groups.map(function(g) {
-      return '<span class="group">' + g + '</span>';
-    });
+  function groupsToHTML(groups) {
+    return groups.map(function(g) { return '<span class="group">' + g + '</span>'; }).join('');
+  }
 
-    if (multi && groupsHTML.length > 4) {
-      var half = Math.ceil(groupsHTML.length / 2);
-      groupsHTML.splice(half, 0, '<br>');
-    }
+  function buildFullHTML(f, multi) {
+    var bodyHTML = multi
+      ? groupsToHTML(f.line1) + '<br>' + groupsToHTML(f.line2)
+      : groupsToHTML(f.groups);
 
     return '<span class="highlight group">' + f.prefix + '</span>' +
-      '<span class="muted">' + groupsHTML.join('') + '</span>' +
+      '<span class="muted">' + bodyHTML + '</span>' +
       '<span class="highlight">' + f.suffix + '</span>';
   }
 
@@ -402,7 +416,7 @@
       var fmt = this.format === 'auto' ? detectFormat(address) : this.format;
       var multi = isMultiline(address);
       var trunc = computeTruncated(address);
-      var full = computeGroups(address);
+      var full = computeGroups(address, multi);
 
       var fullClass = 'text layer layer--absolute' + (multi ? ' text--full' : '');
 
