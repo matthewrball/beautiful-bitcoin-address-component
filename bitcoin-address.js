@@ -148,7 +148,7 @@
       background-color: transparent;
     }
 
-    .display { cursor: text; }
+    .crossfade { cursor: text; }
 
     .text--full { white-space: normal; word-break: break-all; line-height: 1.4; }
     .highlight { color: var(--_success); line-height: 1.2; transition: color 300ms ease; }
@@ -488,16 +488,16 @@
 
       var display = root.querySelector('.display');
       display.addEventListener('click', function(e) {
-        if (e.detail === 3) {
+        if (e.detail >= 3) {
           e.preventDefault();
+          var sel = display.getRootNode().getSelection
+            ? display.getRootNode().getSelection()
+            : window.getSelection();
+          var visible = self._expanded
+            ? root.querySelector('[data-role="full"]')
+            : root.querySelector('[data-role="truncated"]');
           var range = document.createRange();
-          var textNode = document.createTextNode(self.address);
-          var span = document.createElement('span');
-          span.appendChild(textNode);
-          span.style.cssText = 'position:absolute;opacity:0;pointer-events:none;white-space:nowrap';
-          display.appendChild(span);
-          range.selectNodeContents(span);
-          var sel = window.getSelection();
+          range.selectNodeContents(visible);
           sel.removeAllRanges();
           sel.addRange(range);
         }
