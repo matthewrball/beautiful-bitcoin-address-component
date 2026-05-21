@@ -148,23 +148,7 @@
       background-color: transparent;
     }
 
-    .select-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      font-family: var(--btc-font-mono, ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace);
-      font-size: 16px;
-      line-height: 1.2;
-      color: transparent;
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      cursor: text;
-      -webkit-user-select: all;
-      user-select: all;
-      z-index: 1;
-    }
+    .display { cursor: text; }
 
     .text--full { white-space: normal; word-break: break-all; line-height: 1.4; }
     .highlight { color: var(--_success); line-height: 1.2; transition: color 300ms ease; }
@@ -450,8 +434,7 @@
         '<div class="container' + (multi ? ' multiline' : '') + '">' +
           '<label class="label">' + this.label + '</label>' +
           '<div class="row">' +
-            '<div class="display">' +
-              '<span class="select-overlay">' + address + '</span>' +
+            '<div class="display" data-address="' + address + '">' +
               '<div class="crossfade">' +
                 '<span class="text layer" data-role="truncated">' + buildTruncatedHTML(trunc) + '</span>' +
                 '<span class="' + fullClass + '" data-role="full">' + buildFullHTML(full, multi) + '</span>' +
@@ -501,6 +484,23 @@
 
       root.querySelector('[data-action="copy-bottom"]').addEventListener('click', function() {
         self._copy('bottom');
+      });
+
+      var display = root.querySelector('.display');
+      display.addEventListener('click', function(e) {
+        if (e.detail === 3) {
+          e.preventDefault();
+          var range = document.createRange();
+          var textNode = document.createTextNode(self.address);
+          var span = document.createElement('span');
+          span.appendChild(textNode);
+          span.style.cssText = 'position:absolute;opacity:0;pointer-events:none;white-space:nowrap';
+          display.appendChild(span);
+          range.selectNodeContents(span);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
       });
     }
 
