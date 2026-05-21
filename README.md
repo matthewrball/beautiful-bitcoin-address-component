@@ -177,4 +177,4 @@ Chrome 80+, Firefox 75+, Safari 13+, Edge 80+. The component uses `customElement
 
 ## License
 
-MIT. Designed by [Matthew Ball](https://matthewball.me) for [Onramp Bitcoin](https://www.onrampbitcoin.com/).
+MIT. Designed by [Matthew Ball](https://matthewball.me).
