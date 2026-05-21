@@ -172,7 +172,7 @@
       position: absolute;
       top: 50%;
       left: 0;
-      width: 350px;
+      width: max-content;
       transform: translateY(-50%);
       opacity: 0;
       filter: blur(4px);
