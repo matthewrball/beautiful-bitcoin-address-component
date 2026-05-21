@@ -211,7 +211,8 @@
     .copy-inline:active { transform: scale(0.97); }
 
     .copy-inline.hidden {
-      display: none;
+      visibility: hidden;
+      pointer-events: none;
     }
 
     .copy-inline__text {
