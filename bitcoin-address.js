@@ -8,6 +8,8 @@
   var EYE_SVG = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2.017 10.595c-.114-.18-.17-.27-.202-.409a.994.994 0 010-.372c.032-.139.088-.229.202-.409C2.954 7.921 5.746 4.167 10 4.167s7.046 3.754 7.984 5.238c.113.18.17.27.201.409a.994.994 0 010 .372c-.032.139-.088.229-.201.409C17.046 12.079 14.254 15.833 10 15.833S2.955 12.08 2.017 10.595z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var EYE_OFF_SVG = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8.952 4.244A7.374 7.374 0 0110 4.167c4.254 0 7.046 3.754 7.983 5.238.114.18.17.27.202.409a.994.994 0 010 .372c-.032.139-.088.229-.202.409-.322.51-.814 1.21-1.47 1.905M5.633 5.633C3.762 6.956 2.504 8.813 2.016 9.586c-.113.18-.17.27-.201.408a.994.994 0 000 .373c.031.138.088.228.201.408C2.954 12.2 5.746 15.953 10 15.953c1.713 0 3.161-.64 4.366-1.587M2.5 2.5l15 15M8.232 8.232A2.5 2.5 0 0010 12.5c.69 0 1.318-.283 1.768-.732" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  var AFFIX_LEN = 6;
+  var GROUP_SIZE = 7;
   var TIMING = { animationLock: 350, copyFeedback: 2000 };
 
   function detectFormat(address) {
@@ -22,45 +24,36 @@
     return address.length > 40;
   }
 
-  function computeTruncated(address) {
-    var prefixLen = 6;
-    var suffixLen = 6;
-    var prefix = address.slice(0, prefixLen);
-    var suffix = address.slice(-suffixLen);
-    var middle = address.slice(prefixLen, -suffixLen);
-    var truncMiddle = middle.slice(0, 3) + '...' + middle.slice(-3);
-    return { prefix: prefix, middle: truncMiddle, suffix: suffix };
-  }
-
-  function splitIntoGroups(str, size) {
+  function splitIntoGroups(str) {
     var groups = [];
-    for (var i = 0; i < str.length; i += size) {
-      groups.push(str.slice(i, i + size));
+    for (var i = 0; i < str.length; i += GROUP_SIZE) {
+      groups.push(str.slice(i, i + GROUP_SIZE));
     }
     return groups;
   }
 
+  function computeTruncated(address) {
+    var prefix = address.slice(0, AFFIX_LEN);
+    var suffix = address.slice(-AFFIX_LEN);
+    var middle = address.slice(AFFIX_LEN, -AFFIX_LEN);
+    return { prefix: prefix, middle: middle.slice(0, 3) + '...' + middle.slice(-3), suffix: suffix };
+  }
+
   function computeGroups(address, multi) {
-    var prefixLen = 6;
-    var suffixLen = 6;
-    var prefix = address.slice(0, prefixLen);
-    var suffix = address.slice(-suffixLen);
-    var body = address.slice(prefixLen, -suffixLen);
+    var prefix = address.slice(0, AFFIX_LEN);
+    var suffix = address.slice(-AFFIX_LEN);
+    var body = address.slice(AFFIX_LEN, -AFFIX_LEN);
 
     if (multi) {
       var mid = Math.ceil(body.length / 2);
-      return {
-        prefix: prefix,
-        line1: splitIntoGroups(body.slice(0, mid), 7),
-        line2: splitIntoGroups(body.slice(mid), 7),
-        suffix: suffix
-      };
+      return { prefix: prefix, line1: splitIntoGroups(body.slice(0, mid)), line2: splitIntoGroups(body.slice(mid)), suffix: suffix };
     }
 
-    return { prefix: prefix, groups: splitIntoGroups(body, 7), suffix: suffix };
+    return { prefix: prefix, groups: splitIntoGroups(body), suffix: suffix };
   }
 
   var STYLES = `
+    /* Host & theme tokens */
     :host {
       display: block;
       width: 100%;
@@ -96,9 +89,9 @@
       --_shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
+    /* Layout */
     .container { display: flex; flex-direction: column; min-height: 130px; }
     .container.multiline { min-height: 148px; }
-
 
     .label {
       font-size: 14px;
@@ -119,6 +112,7 @@
       transition: border-color 300ms ease;
     }
 
+    /* Address display */
     .display {
       flex: 1;
       background-color: var(--_bg-subtle);
@@ -131,10 +125,8 @@
     }
 
     .multiline .display { height: 78px; padding-top: 0; padding-bottom: 0; }
-    .multiline .crossfade { height: auto; }
-    .multiline .layer--absolute { top: 50%; transform: translateY(-50%); }
-    .multiline .layer--visible { animation-duration: 250ms; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
 
+    /* Address text */
     .text {
       font-family: var(--btc-font-mono, ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace);
       font-size: 16px;
@@ -142,13 +134,12 @@
       background-color: transparent;
     }
 
-    .crossfade { cursor: text; }
-
     .text--full { white-space: normal; word-break: break-all; line-height: 1.4; }
     .highlight { color: var(--_success); line-height: 1.2; transition: color 300ms ease; }
     .muted { color: var(--_text-tertiary); line-height: 1.2; transition: color 300ms ease; }
     .group { margin-right: 0.25em; }
 
+    /* Crossfade layers (truncated ↔ full) */
     @keyframes clip-reveal {
       from { clip-path: inset(0 100% 0 0); }
       to { clip-path: inset(0 0 0 0); }
@@ -160,7 +151,10 @@
       display: flex;
       align-items: center;
       background-color: transparent;
+      cursor: text;
     }
+
+    .multiline .crossfade { height: auto; }
 
     .layer {
       background-color: transparent;
@@ -188,15 +182,17 @@
       pointer-events: none;
     }
 
-    .layer--visible { pointer-events: auto; }
-
     .layer--visible {
       opacity: 1;
       filter: blur(0px);
+      pointer-events: auto;
       animation: clip-reveal 150ms cubic-bezier(0.25, 0, 0.5, 1) both;
     }
 
-    /* Copy button (inline) */
+    .multiline .layer--absolute { top: 50%; transform: translateY(-50%); }
+    .multiline .layer--visible { animation-duration: 250ms; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+    /* Inline copy button */
     .copy-inline {
       display: flex;
       align-items: center;
@@ -215,11 +211,7 @@
     .copy-inline * { cursor: pointer; }
     .copy-inline:hover { background-color: var(--_bg-hover); }
     .copy-inline:active { transform: scale(0.97); }
-
-    .copy-inline.hidden {
-      visibility: hidden;
-      pointer-events: none;
-    }
+    .copy-inline.hidden { visibility: hidden; pointer-events: none; }
 
     .copy-inline__text {
       display: inline-block;
@@ -235,7 +227,7 @@
 
     .copy-inline__text.success { color: var(--_success); width: 56px; }
 
-    /* Action buttons */
+    /* Action buttons (view/hide + bottom copy) */
     .btn-container { position: relative; height: 36px; margin-top: 6px; flex-shrink: 0; }
 
     .btn {
@@ -268,6 +260,7 @@
 
     .btn__text--copy { width: 34px; }
     .btn__text--copy.success { width: 48px; color: var(--_success); }
+
     .btn__icon { flex-shrink: 0; }
     .btn__icon path { stroke: var(--_icon); transition: stroke 300ms ease; }
 
@@ -321,6 +314,7 @@
       transition: opacity 300ms var(--_ease-out-expo) 50ms, transform 500ms var(--_ease-spring) 50ms !important;
     }
 
+    /* Accessibility & responsive */
     @media (pointer: coarse) { .btn, .copy-inline { min-height: 44px; } }
 
     @media (prefers-reduced-motion: reduce) {
@@ -386,6 +380,7 @@
       this.attachShadow({ mode: 'open' });
       this._expanded = false;
       this._animating = false;
+      this._copyTimers = {};
       this._observer = null;
       this._mqListener = null;
     }
@@ -398,8 +393,7 @@
     disconnectedCallback() {
       if (this._observer) this._observer.disconnect();
       if (this._mqListener) {
-        var mq = window.matchMedia('(prefers-color-scheme: dark)');
-        mq.removeEventListener('change', this._mqListener);
+        window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this._mqListener);
       }
     }
 
@@ -419,18 +413,16 @@
       var address = this.address;
       if (!address) { this.shadowRoot.innerHTML = ''; return; }
 
-      var fmt = this.format === 'auto' ? detectFormat(address) : this.format;
       var multi = isMultiline(address);
       var trunc = computeTruncated(address);
       var full = computeGroups(address, multi);
-
       var fullClass = 'text layer layer--absolute' + (multi ? ' text--full' : '');
 
       this.shadowRoot.innerHTML = '<style>' + STYLES + '</style>' +
         '<div class="container' + (multi ? ' multiline' : '') + '">' +
           '<label class="label">' + this.label + '</label>' +
           '<div class="row">' +
-            '<div class="display" data-address="' + address + '">' +
+            '<div class="display">' +
               '<div class="crossfade">' +
                 '<span class="text layer" data-role="truncated">' + buildTruncatedHTML(trunc) + '</span>' +
                 '<span class="' + fullClass + '" data-role="full">' + buildFullHTML(full, multi) + '</span>' +
@@ -463,6 +455,7 @@
 
       this._expanded = false;
       this._animating = false;
+      this._copyTimers = {};
       this._bindEvents();
     }
 
@@ -484,19 +477,18 @@
 
       var display = root.querySelector('.display');
       display.addEventListener('click', function(e) {
-        if (e.detail >= 3) {
-          e.preventDefault();
-          var sel = display.getRootNode().getSelection
-            ? display.getRootNode().getSelection()
-            : window.getSelection();
-          var visible = self._expanded
-            ? root.querySelector('[data-role="full"]')
-            : root.querySelector('[data-role="truncated"]');
-          var range = document.createRange();
-          range.selectNodeContents(visible);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        }
+        if (e.detail < 3) return;
+        e.preventDefault();
+        var sel = display.getRootNode().getSelection
+          ? display.getRootNode().getSelection()
+          : window.getSelection();
+        var visible = self._expanded
+          ? root.querySelector('[data-role="full"]')
+          : root.querySelector('[data-role="truncated"]');
+        var range = document.createRange();
+        range.selectNodeContents(visible);
+        sel.removeAllRanges();
+        sel.addRange(range);
       });
 
       self.addEventListener('copy', function(e) {
@@ -543,19 +535,18 @@
     _copy(location) {
       var self = this;
       var text = this.address;
+      var role = location === 'inline' ? 'copy-inline' : 'copy-bottom';
 
       var doIt = (navigator.clipboard && navigator.clipboard.writeText)
         ? navigator.clipboard.writeText(text).then(function() { return true; }).catch(function() { return self._fallbackCopy(text); })
         : Promise.resolve(this._fallbackCopy(text));
 
       doIt.then(function(success) {
-        var detail = { address: text, success: success };
-        self.dispatchEvent(new CustomEvent('bitcoin-address:copy', { bubbles: true, detail: detail }));
+        self.dispatchEvent(new CustomEvent('bitcoin-address:copy', { bubbles: true, detail: { address: text, success: success } }));
 
         var root = self.shadowRoot;
-        var isInline = location === 'inline';
-        var iconEl = root.querySelector('[data-role="copy-' + location + '"].copy-icon');
-        var textEl = isInline
+        var iconEl = root.querySelector('[data-role="' + role + '"].copy-icon');
+        var textEl = location === 'inline'
           ? root.querySelector('.copy-inline__text')
           : root.querySelector('[data-action="copy-bottom"] .btn__text--copy');
 
@@ -575,11 +566,22 @@
     }
 
     _showCopySuccess(iconEl, textEl) {
+      var key = iconEl.getAttribute('data-role');
+
+      if (this._copyTimers[key]) {
+        clearTimeout(this._copyTimers[key]);
+        this._copyTimers[key] = null;
+      }
+
       iconEl.classList.add('success');
       textEl.classList.add('success');
       textEl.textContent = 'Copied';
+      textEl.style.opacity = '1';
+      textEl.style.transition = '';
 
-      setTimeout(function() {
+      var self = this;
+      this._copyTimers[key] = setTimeout(function() {
+        self._copyTimers[key] = null;
         textEl.style.opacity = '0';
         textEl.style.transition = 'opacity 200ms ease-out';
 
