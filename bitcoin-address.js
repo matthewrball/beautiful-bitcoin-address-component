@@ -102,8 +102,6 @@
     :host(.dark) .container {
       background-color: var(--_bg-secondary);
       border-radius: var(--_radius);
-      padding: 16px;
-      height: auto;
     }
 
     .label {
