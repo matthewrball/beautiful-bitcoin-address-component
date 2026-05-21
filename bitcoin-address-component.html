@@ -261,7 +261,7 @@
     .btc-address {
       display: flex;
       flex-direction: column;
-      width: 366px;
+      width: 380px;
       height: 130px;
     }
 
@@ -292,33 +292,71 @@
       align-items: center;
       height: 44px;
       overflow: hidden;
-      transition: height var(--duration-slow) var(--ease-spring), background-color var(--duration-normal) ease;
+      transition: background-color var(--duration-normal) ease;
     }
 
     /* First component has fixed height to prevent card resize on expand */
     [data-id="1"] {
-      height: 140px;
+      height: 148px;
     }
 
     [data-id="1"] .btc-address__display {
-      height: 70px;
+      height: 78px;
       padding-top: 0;
       padding-bottom: 0;
     }
 
     [data-id="1"] .btc-address__crossfade {
-      height: 50px;
-      overflow: hidden;
+      height: 58px;
     }
 
-    /* Align full address to top for proper reveal animation */
+    @keyframes clip-reveal {
+      from { clip-path: inset(0 100% 0 0); }
+      to { clip-path: inset(0 0 0 0); }
+    }
+
+    [data-id="1"] .btc-address__layer--hidden {
+      opacity: 0;
+      filter: blur(4px);
+      transition: opacity 100ms ease-out, filter 100ms ease-out;
+    }
+
     [data-id="1"] .btc-address__layer--absolute {
-      top: 4px;
-      transform: translateX(8px);
+      top: 7px;
+      transform: none;
+      width: 350px;
+      opacity: 0;
+      filter: blur(4px);
+      background-color: var(--color-bg-subtle) !important;
+      will-change: opacity, filter;
+      transition: opacity 120ms ease-out, filter 120ms ease-out;
     }
 
     [data-id="1"] .btc-address__layer--visible {
-      transform: translateX(0);
+      opacity: 1;
+      filter: blur(0px);
+      animation: clip-reveal 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    /* Component 2: clip-path reveal instead of crossfade */
+    [data-id="2"] .btc-address__layer--hidden {
+      opacity: 1;
+      filter: none;
+      transition: none;
+    }
+
+    [data-id="2"] .btc-address__layer--absolute {
+      opacity: 1;
+      filter: none;
+      background-color: var(--color-bg-subtle) !important;
+      clip-path: inset(0 100% 0 0);
+      will-change: clip-path;
+      transition: clip-path 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-id="2"] .btc-address__layer--visible {
+      clip-path: inset(0 0 0 0);
+      transition: clip-path 150ms cubic-bezier(0.25, 0, 0.5, 1);
     }
 
     /* Second component expands on toggle */
@@ -366,24 +404,32 @@
 
     .btc-address__layer {
       background-color: transparent;
-      transition: opacity var(--duration-normal) var(--ease-out-expo);
+      filter: blur(0px);
+      transition: opacity var(--duration-normal) var(--ease-out-expo), filter var(--duration-normal) var(--ease-out-expo);
     }
 
-    .btc-address__layer--hidden { opacity: 0; }
+    .btc-address__layer--hidden {
+      opacity: 0;
+      filter: blur(4px);
+      transition: opacity 200ms var(--ease-out-expo), filter 200ms var(--ease-out-expo);
+    }
 
     .btc-address__layer--absolute {
       position: absolute;
       top: 50%;
       left: 0;
-      transform: translateY(-50%) translateX(8px);
+      width: 100%;
+      transform: translateY(-50%);
       opacity: 0;
+      filter: blur(4px);
       background-color: transparent;
-      transition: opacity var(--duration-normal) var(--ease-out-expo), transform var(--duration-normal) var(--ease-out-expo);
+      will-change: opacity, filter;
+      transition: opacity var(--duration-normal) var(--ease-out-expo), filter var(--duration-normal) var(--ease-out-expo);
     }
 
     .btc-address__layer--visible {
       opacity: 1;
-      transform: translateY(-50%) translateX(0);
+      filter: blur(0px);
     }
 
     /* ==========================================================================
@@ -409,6 +455,7 @@
     }
 
     .copy-btn-inline:hover { background-color: var(--color-bg-primary); }
+    .copy-btn-inline:active { transform: scale(0.97); }
 
     .copy-btn-inline--hidden {
       opacity: 0;
@@ -431,9 +478,9 @@
       transition: color 250ms var(--ease-out-expo), width var(--duration-slow) var(--ease-spring);
     }
 
-    .copy-btn-inline__text--success {
+    .copy-btn-inline .copy-btn-inline__text--success {
       color: var(--color-success);
-      width: 52px;
+      width: 56px;
     }
 
     /* ==========================================================================
@@ -462,6 +509,7 @@
     }
 
     .btn:hover { background-color: var(--color-bg-hover); }
+    .btn:active { transform: scale(0.97); }
     .btn--full-width { width: 100%; }
     .btn--flex { flex: 1; }
 
@@ -683,7 +731,7 @@
       }
 
       .copy-btn-inline__text { font-size: 14px; width: 34px; }
-      .copy-btn-inline__text--success { width: 48px; }
+      .copy-btn-inline__text--success { width: 52px; }
 
       .btn { padding: 10px var(--space-3); gap: var(--space-1); }
       .btn__text { font-size: 14px; }
@@ -740,6 +788,18 @@
     @media (hover: none) and (pointer: coarse) {
       * { touch-action: manipulation; }
     }
+
+    /* Accessibility: respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        filter: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -773,7 +833,7 @@
             <div class="btc-address__display" data-display="1">
               <div class="btc-address__crossfade">
                 <span class="btc-address__text btc-address__layer" data-truncated="1">
-                  <span class="btc-address__highlight">bc1qvh</span><span class="btc-address__muted">u35...mfs</span><span class="btc-address__highlight">nffz65</span>
+                  <span class="btc-address__highlight btc-address__group">bc1qvh</span><span class="btc-address__muted">u35...mfs</span><span class="btc-address__highlight">nffz65</span>
                 </span>
                 <span class="btc-address__text btc-address__text--full btc-address__layer btc-address__layer--absolute" data-full="1">
                   <span class="btc-address__highlight btc-address__group">bc1qvh</span><span class="btc-address__muted"><span class="btc-address__group">u3557tw</span><span class="btc-address__group">ysq2ldn</span><span class="btc-address__group">6dut6rm</span><span class="btc-address__group">aj3q</span><br><span class="btc-address__group">k04p60h</span><span class="btc-address__group">9l79wk4</span><span class="btc-address__group">lzgy0ca</span><span class="btc-address__group">8mfs</span></span><span class="btc-address__highlight">nffz65</span>
@@ -836,7 +896,7 @@
             <div class="btc-address__display" data-display="2">
               <div class="btc-address__crossfade">
                 <span class="btc-address__text btc-address__layer" data-truncated="2">
-                  <span class="btc-address__highlight">3HU3JV</span><span class="btc-address__muted">MSG...QK5</span><span class="btc-address__highlight">dD1zob</span>
+                  <span class="btc-address__highlight btc-address__group">3HU3JV</span><span class="btc-address__muted">MSG...QK5</span><span class="btc-address__highlight">dD1zob</span>
                 </span>
                 <span class="btc-address__text btc-address__layer btc-address__layer--absolute" data-full="2">
                   <span class="btc-address__highlight btc-address__group">3HU3JV</span><span class="btc-address__muted"><span class="btc-address__group">MSGushf</span><span class="btc-address__group">koWS9ey</span><span class="btc-address__group">ZjGzGQK</span>5</span><span class="btc-address__highlight">dD1zob</span>
