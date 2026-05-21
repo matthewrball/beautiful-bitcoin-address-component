@@ -524,10 +524,9 @@
         var detail = { address: text, success: success };
         self.dispatchEvent(new CustomEvent('bitcoin-address:copy', { bubbles: true, detail: detail }));
 
-        if (!success) return;
         var root = self.shadowRoot;
         var isInline = location === 'inline';
-        var iconEl = root.querySelector('[data-role="copy-' + location + '"] .copy-icon');
+        var iconEl = root.querySelector('[data-role="copy-' + location + '"].copy-icon');
         var textEl = isInline
           ? root.querySelector('.copy-inline__text')
           : root.querySelector('[data-action="copy-bottom"] .btn__text--copy');
