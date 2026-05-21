@@ -102,7 +102,6 @@
     :host(.dark) {
       background-color: var(--_bg-secondary);
       border-radius: var(--_radius);
-      padding: 12px;
     }
 
     .label {
