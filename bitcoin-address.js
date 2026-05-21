@@ -99,9 +99,10 @@
     .container { display: flex; flex-direction: column; min-height: 130px; }
     .container.multiline { min-height: 148px; }
 
-    :host(.dark) .container {
+    :host(.dark) {
       background-color: var(--_bg-secondary);
       border-radius: var(--_radius);
+      padding: 12px;
     }
 
     .label {
