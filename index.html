@@ -140,10 +140,18 @@
     .dark .theme-toggle__icon--sun { display: block; }
     .dark .theme-toggle__icon--moon { display: none; }
 
-    .toast {
+    .toast-container {
       position: fixed;
       bottom: 32px;
       right: 32px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
       background-color: var(--color-bg-secondary);
       color: var(--color-text-primary);
       padding: 16px;
@@ -157,7 +165,6 @@
       transform: translateY(100%);
       pointer-events: none;
       transition: opacity 400ms ease, transform 400ms ease;
-      z-index: 999;
     }
 
     .toast.visible {
@@ -212,8 +219,7 @@
       .back-link { top: 12px; left: 12px; padding: 10px; gap: 4px; }
       .back-link__icon { width: 14px; height: 14px; }
       .back-link__text { font-size: 12px; }
-      .toast { bottom: 16px; right: 16px; }
-      .toast.visible { transform: translateY(0); }
+      .toast-container { bottom: 16px; right: 16px; }
       .github-link { padding: 6px 8px; }
       .github-link__icon { width: 16px; height: 16px; }
       .github-link__text { font-size: 12px; }
@@ -261,7 +267,7 @@
     </a>
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">Address copied to clipboard</div>
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
   <footer class="footer">
     Designed by Matthew Ball on <a href="https://mempool.space/block/0000000000000000000032bcfdb9b513ff18a9458de954e692bfb639047d51b2" class="footer__link" target="_blank" rel="noopener noreferrer">933412</a>
@@ -278,12 +284,22 @@
         localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
       });
 
-      var toast = document.getElementById('toast');
+      var container = document.getElementById('toast-container');
       document.querySelectorAll('bitcoin-address').forEach(function(el) {
         el.addEventListener('bitcoin-address:copy', function(e) {
           if (!e.detail.success) return;
-          toast.classList.add('visible');
-          setTimeout(function() { toast.classList.remove('visible'); }, 2000);
+          var toast = document.createElement('div');
+          toast.className = 'toast';
+          toast.setAttribute('role', 'status');
+          toast.textContent = 'Address copied to clipboard';
+          container.appendChild(toast);
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() { toast.classList.add('visible'); });
+          });
+          setTimeout(function() {
+            toast.classList.remove('visible');
+            setTimeout(function() { toast.remove(); }, 400);
+          }, 2000);
         });
       });
 
