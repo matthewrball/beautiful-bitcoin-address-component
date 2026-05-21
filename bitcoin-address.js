@@ -63,7 +63,8 @@
   var STYLES = `
     :host {
       display: block;
-      width: 380px;
+      width: 100%;
+      max-width: 380px;
       font-family: var(--btc-font-sans, inherit);
       --_text-primary: var(--btc-text-primary, #181d27);
       --_text-secondary: var(--btc-text-secondary, #414651);
@@ -95,8 +96,15 @@
       --_shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 
-    .container { display: flex; flex-direction: column; height: 130px; }
-    .container.multiline { height: 148px; }
+    .container { display: flex; flex-direction: column; min-height: 130px; }
+    .container.multiline { min-height: 148px; }
+
+    :host(.dark) .container {
+      background-color: var(--_bg-secondary);
+      border-radius: var(--_radius);
+      padding: 16px;
+      height: auto;
+    }
 
     .label {
       font-size: 14px;
@@ -123,8 +131,8 @@
       padding: 2px 14px 0;
       display: flex;
       align-items: center;
-      height: 44px;
-      overflow: hidden;
+      min-height: 44px;
+      position: relative;
       transition: background-color 300ms ease;
     }
 
@@ -138,6 +146,24 @@
       font-size: 16px;
       line-height: 1.2;
       background-color: transparent;
+    }
+
+    .select-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      font-family: var(--btc-font-mono, ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace);
+      font-size: 16px;
+      line-height: 1.2;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      cursor: text;
+      -webkit-user-select: all;
+      user-select: all;
+      z-index: 1;
     }
 
     .text--full { white-space: normal; word-break: break-all; line-height: 1.4; }
@@ -425,6 +451,7 @@
           '<label class="label">' + this.label + '</label>' +
           '<div class="row">' +
             '<div class="display">' +
+              '<span class="select-overlay">' + address + '</span>' +
               '<div class="crossfade">' +
                 '<span class="text layer" data-role="truncated">' + buildTruncatedHTML(trunc) + '</span>' +
                 '<span class="' + fullClass + '" data-role="full">' + buildFullHTML(full, multi) + '</span>' +
@@ -552,9 +579,19 @@
       textEl.textContent = 'Copied';
 
       setTimeout(function() {
-        iconEl.classList.remove('success');
-        textEl.classList.remove('success');
-        textEl.textContent = 'Copy';
+        textEl.style.opacity = '0';
+        textEl.style.transition = 'opacity 200ms ease-out';
+
+        setTimeout(function() {
+          iconEl.classList.remove('success');
+          textEl.classList.remove('success');
+          textEl.textContent = 'Copy';
+
+          requestAnimationFrame(function() {
+            textEl.style.opacity = '1';
+            textEl.style.transition = 'opacity 300ms ease-in';
+          });
+        }, 200);
       }, TIMING.copyFeedback);
     }
 
