@@ -307,12 +307,16 @@
     }
 
     [data-id="1"] .btc-address__crossfade {
-      height: 58px;
+      height: auto;
     }
 
     @keyframes clip-reveal {
       from { clip-path: inset(0 100% 0 0); }
       to { clip-path: inset(0 0 0 0); }
+    }
+
+    [data-id="1"] .btc-address__layer {
+      transition: opacity 30ms ease-out, filter 30ms ease-out;
     }
 
     [data-id="1"] .btc-address__layer--hidden {
@@ -322,14 +326,14 @@
     }
 
     [data-id="1"] .btc-address__layer--absolute {
-      top: 7px;
-      transform: none;
+      top: 50%;
+      transform: translateY(-50%);
       width: 350px;
       opacity: 0;
       filter: blur(4px);
       background-color: var(--color-bg-subtle) !important;
       will-change: opacity, filter;
-      transition: opacity 120ms ease-out, filter 120ms ease-out;
+      transition: opacity 30ms ease-out, filter 30ms ease-out;
     }
 
     [data-id="1"] .btc-address__layer--visible {
