@@ -192,6 +192,176 @@
     .github-link__icon { width: 18px; height: 18px; color: var(--color-text-secondary); flex-shrink: 0; }
     .github-link__text { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); line-height: 20px; }
 
+    /* Poll widget */
+    .poll {
+      position: fixed;
+      bottom: 32px;
+      left: 32px;
+      z-index: 998;
+      width: 280px;
+      background-color: var(--color-bg-secondary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                  background-color 300ms ease,
+                  border-color 300ms ease,
+                  box-shadow 300ms ease;
+    }
+
+    .poll.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .poll.dismissed {
+      opacity: 0;
+      transform: translateY(12px) scale(0.96);
+      pointer-events: none;
+      transition: opacity 250ms ease,
+                  transform 250ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    .poll__close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      border-radius: 6px;
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 150ms ease, color 300ms ease;
+    }
+
+    .poll__close:hover {
+      background-color: var(--color-bg-hover);
+      color: var(--color-text-secondary);
+    }
+
+    .poll__label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-tertiary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      line-height: 1;
+      transition: color 300ms ease;
+    }
+
+    .poll__label-icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .poll__question {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      line-height: 1.4;
+      margin-bottom: 6px;
+      padding-right: 20px;
+      transition: color 300ms ease;
+    }
+
+    .poll__link {
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-bottom: 14px;
+      transition: color 150ms ease;
+    }
+
+    .poll__link:hover { color: var(--color-text-secondary); text-decoration: underline; }
+    .poll__link-arrow { display: inline-block; transition: transform 150ms ease; }
+    .poll__link:hover .poll__link-arrow { transform: translateX(2px); }
+
+    .poll__actions { display: flex; gap: 8px; }
+
+    .poll__btn {
+      flex: 1;
+      padding: 9px 14px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-secondary);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: background-color 150ms ease-out, transform 150ms ease,
+                  border-color 300ms ease, color 300ms ease, box-shadow 300ms ease;
+    }
+
+    .poll__btn:hover { background-color: var(--color-bg-hover); }
+    .poll__btn:active { transform: scale(0.97); }
+
+    .poll__question-wrap {
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .poll__thanks-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 8px 0 4px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 300ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .poll__check-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: #ecfdf3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      transform: scale(0);
+      transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms;
+    }
+
+    .dark .poll__check-circle { background-color: #053321; }
+    .poll__check-circle.animate { transform: scale(1); }
+
+    .poll__check-icon { width: 22px; height: 22px; color: #079455; }
+    .dark .poll__check-icon { color: #47cd89; }
+
+    .poll__thanks-text {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 2px;
+      transition: color 300ms ease;
+    }
+
+    .poll__thanks-sub {
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+      transition: color 300ms ease;
+    }
+
     /* Footer */
     .footer {
       position: fixed;
@@ -226,6 +396,9 @@
       .github-link { padding: 6px 8px; }
       .github-link__icon { width: 16px; height: 16px; }
       .github-link__text { font-size: 12px; }
+      .poll { bottom: 52px; left: 12px; right: 12px; width: auto; padding: 16px; border-radius: 12px; }
+      .poll__question { font-size: 14px; padding-right: 16px; }
+      .poll__btn { padding: 10px 12px; font-size: 13px; }
       .footer { bottom: 12px; font-size: 12px; padding: 0 16px; }
     }
 
@@ -269,6 +442,33 @@
       <span class="github-link__text">View on GitHub</span>
     </a>
   </main>
+
+  <div class="poll" id="poll" role="complementary" aria-label="Quick poll">
+    <button class="poll__close" id="pollClose" aria-label="Dismiss poll">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4L4 12M4 4l8 8"/></svg>
+    </button>
+    <div class="poll__question-wrap" id="pollQuestion">
+      <div class="poll__label">
+        <svg class="poll__label-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 10v3M7 6v7M11 2v11"/></svg>
+        Quick poll
+      </div>
+      <p class="poll__question">Do you want to see human-readable addresses?</p>
+      <a class="poll__link" href="https://bitcoin.design/guide/how-it-works/human-readable-addresses/" target="_blank" rel="noopener noreferrer">
+        What are those? <span class="poll__link-arrow">&rarr;</span>
+      </a>
+      <div class="poll__actions">
+        <button class="poll__btn" data-vote="yes">Yes, please!</button>
+        <button class="poll__btn" data-vote="no">Not now</button>
+      </div>
+    </div>
+    <div class="poll__thanks-wrap" id="pollThanks">
+      <div class="poll__check-circle" id="pollCheckCircle">
+        <svg class="poll__check-icon" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.5l3.5 3.5 6.5-7"/></svg>
+      </div>
+      <p class="poll__thanks-text">Thanks for your vote!</p>
+      <p class="poll__thanks-sub">We hear you.</p>
+    </div>
+  </div>
 
   <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
@@ -330,6 +530,66 @@
           var entry = { el: toast, dismissTimer: null, removeTimer: null };
           toasts[key] = entry;
           scheduleDismiss(entry, key);
+        });
+      });
+    })();
+  </script>
+  <script>
+    (function() {
+      var POLL_KEY = 'btc-poll-hra';
+      var POLL_DELAY = 2500;
+      var THANKS_DISMISS = 3500;
+
+      if (localStorage.getItem(POLL_KEY)) return;
+
+      var poll = document.getElementById('poll');
+      var closeBtn = document.getElementById('pollClose');
+      var questionWrap = document.getElementById('pollQuestion');
+      var thanksWrap = document.getElementById('pollThanks');
+      var checkCircle = document.getElementById('pollCheckCircle');
+
+      setTimeout(function() {
+        poll.classList.add('visible');
+      }, POLL_DELAY);
+
+      closeBtn.addEventListener('click', function() {
+        localStorage.setItem(POLL_KEY, 'dismissed');
+        poll.classList.remove('visible');
+        poll.classList.add('dismissed');
+      });
+
+      poll.querySelectorAll('[data-vote]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var vote = btn.getAttribute('data-vote');
+          localStorage.setItem(POLL_KEY, vote);
+
+          var form = new FormData();
+          form.append('entry.524339835', vote);
+          navigator.sendBeacon(
+            'https://docs.google.com/forms/d/e/1FAIpQLScOjS5TrraQgHG1uyQMYuTDlRaCHibq-DVKjGqsf6fir6CeqA/formResponse',
+            form
+          );
+
+          questionWrap.style.opacity = '0';
+          questionWrap.style.transform = 'translateY(-4px)';
+
+          setTimeout(function() {
+            questionWrap.style.display = 'none';
+            thanksWrap.style.display = 'flex';
+
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                thanksWrap.style.opacity = '1';
+                thanksWrap.style.transform = 'translateY(0)';
+                checkCircle.classList.add('animate');
+              });
+            });
+
+            setTimeout(function() {
+              poll.classList.remove('visible');
+              poll.classList.add('dismissed');
+            }, THANKS_DISMISS);
+          }, 200);
         });
       });
     })();
