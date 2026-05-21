@@ -217,14 +217,7 @@
     .copy-inline:active { transform: scale(0.97); }
 
     .copy-inline.hidden {
-      opacity: 0;
-      transform: translateX(12px);
-      pointer-events: none;
-      width: 0;
-      padding: 0;
-      border: none;
-      overflow: hidden;
-      visibility: hidden;
+      display: none;
     }
 
     .copy-inline__text {
