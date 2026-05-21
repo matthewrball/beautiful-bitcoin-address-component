@@ -204,9 +204,12 @@
       border: none;
       border-left: 1px solid var(--_border);
       cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
       transition: opacity 300ms var(--_ease-out-expo), transform 450ms var(--_ease-spring), width 450ms var(--_ease-out-expo), padding 450ms var(--_ease-out-expo), background-color 150ms ease-out;
     }
 
+    .copy-inline * { cursor: pointer; }
     .copy-inline:hover { background-color: var(--_bg-hover); }
     .copy-inline:active { transform: scale(0.97); }
 
