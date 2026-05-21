@@ -1,4 +1,4 @@
-# Beautiful bitcoin address component
+# Beautiful Bitcoin Address Component
 
 A production-ready web component for displaying bitcoin addresses with expand/collapse reveal, copy-to-clipboard, and light/dark theme support. Zero dependencies. Designed for wallet interfaces, payment flows, and educational resources.
 
