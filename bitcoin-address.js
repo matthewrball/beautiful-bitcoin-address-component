@@ -502,6 +502,11 @@
           sel.addRange(range);
         }
       });
+
+      self.addEventListener('copy', function(e) {
+        e.preventDefault();
+        e.clipboardData.setData('text/plain', self.address);
+      });
     }
 
     _toggle() {
