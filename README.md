@@ -1,6 +1,6 @@
 # Beautiful Bitcoin Address Component
 
-A production-ready web component for displaying bitcoin addresses with expand/collapse reveal, copy-to-clipboard, and light/dark theme support. Zero dependencies. Designed for wallet interfaces, payment flows, and educational resources.
+A production-ready web component for displaying bitcoin addresses with expand/collapse reveal, copy-to-clipboard, and light/dark theme support. Zero dependencies, no build step, with TypeScript types and a typed React wrapper included. Designed for wallet interfaces, payment flows, and educational resources.
 
 **[Live Demo](https://matthewball.me/bitcoin-address-component/)** | **[Bitcoin Design Guide Reference](https://bitcoin.design/guide/glossary/address/)**
 
@@ -13,6 +13,8 @@ A production-ready web component for displaying bitcoin addresses with expand/co
 
 ## Quick Start
 
+### Script tag
+
 Add the script to your page and use the `<bitcoin-address>` custom element:
 
 ```html
@@ -22,6 +24,53 @@ Add the script to your page and use the `<bitcoin-address>` custom element:
 ```
 
 That's it. The component renders with full interactivity — no build step, no framework, no configuration required.
+
+### npm / bundlers
+
+Install straight from GitHub:
+
+```bash
+npm install github:matthewrball/beautiful-bitcoin-address-component
+```
+
+Import once for the side effect of registering the element (TypeScript types included):
+
+```js
+import 'beautiful-bitcoin-address-component';
+```
+
+### React / Next.js
+
+A typed React wrapper is included at the `/react` entry point. It registers the element, forwards props as attributes, and converts the custom events into callback props:
+
+```tsx
+import { BitcoinAddress } from 'beautiful-bitcoin-address-component/react';
+
+function DepositAddress({ address }: { address: string }) {
+  const handleCopy = ({ address, success }) => {
+    if (success) toast('Address copied to clipboard');
+  };
+
+  return (
+    <BitcoinAddress
+      address={address}
+      label="Deposit address"
+      onCopy={handleCopy}
+    />
+  );
+}
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `address` | `string` | *(required)* The full bitcoin address |
+| `format` | `'auto' \| 'bech32' \| 'p2sh' \| 'taproot' \| 'legacy'` | Address format (default `auto`) |
+| `label` | `string` | Label text (default `Bitcoin address`) |
+| `theme` | `'auto' \| 'light' \| 'dark'` | Color theme (default `auto`) |
+| `onCopy` | `(detail: { address, success }) => void` | Copy button callback |
+| `onToggle` | `(detail: { expanded }) => void` | Expand/collapse callback |
+
+`className`, `style`, `id`, and other standard HTML attributes pass through to the host element. The wrapper is marked `'use client'`, so it drops into a Next.js App Router project without extra configuration. On the server it renders the bare `<bitcoin-address>` tag, which upgrades on the client — no hydration mismatch.
 
 ## Supported Address Formats
 
@@ -53,6 +102,10 @@ Addresses longer than 40 characters automatically use a multi-line expanded view
 | `format` | `auto` | Address format: `bech32`, `p2sh`, `taproot`, `legacy`, or `auto` (detected from prefix) |
 | `label` | `Bitcoin address` | Label text displayed above the address field |
 | `theme` | `auto` | Color theme: `light`, `dark`, or `auto` (follows host page or `prefers-color-scheme`) |
+
+All attributes are also available as reflected JavaScript properties (`el.address = '...'`), so the element works with frameworks that assign properties instead of attributes. The resolved format is exposed as a readonly `detectedFormat` property and reflected to a `data-format` attribute on the host element — a styling hook for format-specific CSS.
+
+Attribute values are HTML-escaped before rendering, so user-supplied labels and addresses are safe to pass straight through.
 
 ## Features
 
@@ -148,12 +201,23 @@ python3 -m http.server 8000
 # Open http://localhost:8000
 ```
 
+Run the test suite (Node 22+, uses the built-in test runner with jsdom):
+
+```bash
+npm install
+npm test
+```
+
 ## File Structure
 
 ```
 beautiful-bitcoin-address-component/
   bitcoin-address.js           Web Component (self-contained, ~15KB)
+  bitcoin-address.d.ts         TypeScript types for the element and its events
+  react.js                     React wrapper ('use client', no build step)
+  react.d.ts                   TypeScript types for the React wrapper
   index.html                   Demo page (uses the component)
+  test/                        Unit tests (node --test + jsdom)
   jekyll/
     _includes/
       bitcoin-address.html     Jekyll include for bitcoin.design
