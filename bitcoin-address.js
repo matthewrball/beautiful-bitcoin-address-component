@@ -1,6 +1,9 @@
 (function() {
   'use strict';
 
+  // SSR guard: importing this module in Node (Next.js server render of a
+  // 'use client' component) must be a no-op; registration happens client-side.
+  if (typeof window === 'undefined' || typeof customElements === 'undefined') return;
   if (customElements.get('bitcoin-address')) return;
 
   var COPY_SVG = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
