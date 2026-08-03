@@ -1,0 +1,59 @@
+{
+  "name": "beautiful-bitcoin-address-component",
+  "version": "1.1.0",
+  "description": "A beautiful, zero-dependency web component for displaying bitcoin addresses, with a typed React wrapper.",
+  "license": "MIT",
+  "author": "Matthew Ball (https://matthewball.me)",
+  "homepage": "https://matthewball.me/bitcoin-address-component/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthewrball/beautiful-bitcoin-address-component.git"
+  },
+  "type": "module",
+  "main": "bitcoin-address.js",
+  "types": "bitcoin-address.d.ts",
+  "exports": {
+    ".": {
+      "types": "./bitcoin-address.d.ts",
+      "default": "./bitcoin-address.js"
+    },
+    "./react": {
+      "types": "./react.d.ts",
+      "default": "./react.js"
+    }
+  },
+  "files": [
+    "bitcoin-address.js",
+    "bitcoin-address.d.ts",
+    "react.js",
+    "react.d.ts"
+  ],
+  "sideEffects": [
+    "./bitcoin-address.js",
+    "./react.js"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "bitcoin",
+    "address",
+    "web-component",
+    "custom-element",
+    "react",
+    "wallet"
+  ],
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

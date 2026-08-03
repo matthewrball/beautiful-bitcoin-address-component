@@ -1,6 +1,9 @@
 (function() {
   'use strict';
 
+  // SSR guard: importing this module in Node (Next.js server render of a
+  // 'use client' component) must be a no-op; registration happens client-side.
+  if (typeof window === 'undefined' || typeof customElements === 'undefined') return;
   if (customElements.get('bitcoin-address')) return;
 
   var COPY_SVG = '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4.167 12.5c-.775 0-1.167 0-1.472-.127a1.667 1.667 0 01-.902-.902C1.667 11.167 1.667 10.775 1.667 10V4.333c0-.933 0-1.4.181-1.756.16-.314.415-.569.729-.729.356-.181.823-.181 1.756-.181H10c.775 0 1.167 0 1.471.127.391.17.715.493.902.902.127.305.127.696.127 1.471m-2.333 14.166h5.5c.933 0 1.4 0 1.756-.181.314-.16.569-.415.729-.729.181-.356.181-.823.181-1.756v-5.5c0-.934 0-1.4-.181-1.757a1.667 1.667 0 00-.729-.728c-.356-.182-.823-.182-1.756-.182h-5.5c-.934 0-1.4 0-1.757.182-.314.16-.569.414-.728.728-.182.357-.182.823-.182 1.757v5.5c0 .933 0 1.4.182 1.756.16.314.414.569.728.729.357.181.823.181 1.757.181z" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -11,6 +14,12 @@
   var AFFIX_LEN = 6;
   var GROUP_SIZE = 7;
   var TIMING = { animationLock: 350, copyFeedback: 2000 };
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function(ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
 
   function detectFormat(address) {
     if (address.startsWith('bc1q')) return 'bech32';
@@ -75,7 +84,7 @@
       --_ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    :host(.dark) {
+    :host(.dark), :host([data-dark]) {
       --_text-primary: var(--btc-text-primary, #f5f5f6);
       --_text-secondary: var(--btc-text-secondary, #cecfd2);
       --_text-tertiary: var(--btc-text-tertiary, #94969c);
@@ -343,6 +352,22 @@
     }
   `;
 
+  // Shared constructable stylesheet: parsed once, adopted by every instance.
+  // Falls back to a per-instance <style> tag where unsupported.
+  var sharedSheet = null;
+  function getSharedSheet() {
+    if (sharedSheet === null) {
+      sharedSheet = false;
+      if (typeof CSSStyleSheet !== 'undefined' && CSSStyleSheet.prototype.replaceSync) {
+        try {
+          sharedSheet = new CSSStyleSheet();
+          sharedSheet.replaceSync(STYLES);
+        } catch (e) { sharedSheet = false; }
+      }
+    }
+    return sharedSheet;
+  }
+
   function buildCopyIcon(role) {
     return '<span class="copy-icon" data-role="' + role + '">' +
       '<span class="icon-copy">' + COPY_SVG + '</span>' +
@@ -351,13 +376,13 @@
   }
 
   function buildTruncatedHTML(t) {
-    return '<span class="highlight">' + t.prefix + '</span>' +
-      '<span class="muted">' + t.middle + '</span>' +
-      '<span class="highlight">' + t.suffix + '</span>';
+    return '<span class="highlight">' + escapeHTML(t.prefix) + '</span>' +
+      '<span class="muted">' + escapeHTML(t.middle) + '</span>' +
+      '<span class="highlight">' + escapeHTML(t.suffix) + '</span>';
   }
 
   function groupsToHTML(groups) {
-    return groups.map(function(g) { return '<span class="group">' + g + '</span>'; }).join('');
+    return groups.map(function(g) { return '<span class="group">' + escapeHTML(g) + '</span>'; }).join('');
   }
 
   function buildFullHTML(f, multi) {
@@ -365,9 +390,9 @@
       ? groupsToHTML(f.line1) + '<br>' + groupsToHTML(f.line2)
       : groupsToHTML(f.groups);
 
-    return '<span class="highlight group">' + f.prefix + '</span>' +
+    return '<span class="highlight group">' + escapeHTML(f.prefix) + '</span>' +
       '<span class="muted">' + bodyHTML + '</span>' +
-      '<span class="highlight">' + f.suffix + '</span>';
+      '<span class="highlight">' + escapeHTML(f.suffix) + '</span>';
   }
 
   class BitcoinAddressElement extends HTMLElement {
@@ -382,7 +407,11 @@
       this._animating = false;
       this._copyTimers = {};
       this._observer = null;
+      this._mq = null;
       this._mqListener = null;
+
+      var sheet = getSharedSheet();
+      if (sheet) this.shadowRoot.adoptedStyleSheets = [sheet];
     }
 
     connectedCallback() {
@@ -391,10 +420,8 @@
     }
 
     disconnectedCallback() {
-      if (this._observer) this._observer.disconnect();
-      if (this._mqListener) {
-        window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', this._mqListener);
-      }
+      this._clearCopyTimers();
+      this._teardownThemeSync();
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -405,22 +432,42 @@
     }
 
     get address() { return this.getAttribute('address') || ''; }
+    set address(value) { this._reflect('address', value); }
     get format() { return this.getAttribute('format') || 'auto'; }
+    set format(value) { this._reflect('format', value); }
     get label() { return this.getAttribute('label') || 'Bitcoin address'; }
+    set label(value) { this._reflect('label', value); }
     get theme() { return this.getAttribute('theme') || 'auto'; }
+    set theme(value) { this._reflect('theme', value); }
+
+    get detectedFormat() {
+      var format = this.format;
+      return format === 'auto' ? detectFormat(this.address) : format;
+    }
+
+    _reflect(name, value) {
+      if (value == null) this.removeAttribute(name);
+      else this.setAttribute(name, value);
+    }
 
     _render() {
       var address = this.address;
-      if (!address) { this.shadowRoot.innerHTML = ''; return; }
+      if (!address) {
+        this.shadowRoot.innerHTML = '';
+        this.removeAttribute('data-format');
+        return;
+      }
+
+      this.setAttribute('data-format', this.detectedFormat);
 
       var multi = isMultiline(address);
       var trunc = computeTruncated(address);
       var full = computeGroups(address, multi);
       var fullClass = 'text layer layer--absolute' + (multi ? ' text--full' : '');
 
-      this.shadowRoot.innerHTML = '<style>' + STYLES + '</style>' +
+      this.shadowRoot.innerHTML = (getSharedSheet() ? '' : '<style>' + STYLES + '</style>') +
         '<div class="container' + (multi ? ' multiline' : '') + '">' +
-          '<label class="label">' + this.label + '</label>' +
+          '<label class="label">' + escapeHTML(this.label) + '</label>' +
           '<div class="row">' +
             '<div class="display">' +
               '<div class="crossfade">' +
@@ -455,7 +502,7 @@
 
       this._expanded = false;
       this._animating = false;
-      this._copyTimers = {};
+      this._clearCopyTimers();
       this._bindEvents();
     }
 
@@ -603,9 +650,11 @@
       var theme = this.theme;
 
       if (theme === 'dark') {
-        this.classList.add('dark');
+        this._teardownThemeSync();
+        this.setAttribute('data-dark', '');
       } else if (theme === 'light') {
-        this.classList.remove('dark');
+        this._teardownThemeSync();
+        this.removeAttribute('data-dark');
       } else {
         this._syncThemeFromHost();
 
@@ -614,18 +663,41 @@
           this._observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
         }
 
-        if (!this._mqListener) {
-          var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (!this._mq) {
+          this._mq = window.matchMedia('(prefers-color-scheme: dark)');
           this._mqListener = function() { self._syncThemeFromHost(); };
-          mq.addEventListener('change', this._mqListener);
+          if (this._mq.addEventListener) this._mq.addEventListener('change', this._mqListener);
+          else this._mq.addListener(this._mqListener);
         }
       }
+    }
+
+    _teardownThemeSync() {
+      if (this._observer) {
+        this._observer.disconnect();
+        this._observer = null;
+      }
+      if (this._mq) {
+        if (this._mq.removeEventListener) this._mq.removeEventListener('change', this._mqListener);
+        else this._mq.removeListener(this._mqListener);
+        this._mq = null;
+        this._mqListener = null;
+      }
+    }
+
+    _clearCopyTimers() {
+      for (var key in this._copyTimers) {
+        if (this._copyTimers[key]) clearTimeout(this._copyTimers[key]);
+      }
+      this._copyTimers = {};
     }
 
     _syncThemeFromHost() {
       var html = document.documentElement;
       var isDark = html.classList.contains('dark') || html.classList.contains('theme--dark');
-      this.classList.toggle('dark', isDark);
+      // data-dark instead of a class: frameworks that own the class attribute
+      // (React className) would clobber a self-managed class on re-render.
+      this.toggleAttribute('data-dark', isDark);
     }
   }
 
